@@ -31,5 +31,15 @@ define(["app/views/common/Canvas"], function(Canvas) {
             this.render();
         }
     });
+    var c = document.createElement("canvas");
+    c.width = 1600;
+    c.height = 700;
+    $("body").html(c);
+    var ctx = c.getContext("2d");
+    ctx.translate(750, 300);
+    for (var i = 0; i < 360; i++) {
+        ctx.strokeRect(650, 200, 200, 200);
+        ctx.rotate(1);
+    }
     return module;
 });

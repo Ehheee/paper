@@ -47,7 +47,7 @@ define(["backbone", "app/templateLoader"], function(Backbone, templateLoader) {
             return this;
         },
         renderSelect: function() {
-            select = $(document.createElement("select"));
+            select = $(document.createElement("select")).attr("name", this.key);
             for (var i = 0; i < this.values.length; i++) {
                 var value = this.values[i];
                 if (!this.showKey && !this.valueKey) {
@@ -61,7 +61,7 @@ define(["backbone", "app/templateLoader"], function(Backbone, templateLoader) {
         },
         afterInput: function() {
             console.log("!!!");
-            this.trigger("input:changed", this.getValue());
+            this.trigger("input:changed",this.key, this.getValue());
             this.changed = true;
         },
         getValue: function() {
