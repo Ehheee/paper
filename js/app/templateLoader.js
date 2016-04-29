@@ -1,5 +1,5 @@
 define(["backbone", "app/config"], function(Backbone, config) {
-	var templateFiles = ["/html/common.html"];
+	var templateFiles = ["/html/common.html", "/html/paper.html"];
 	var module = {
 		get: function(id) {
 			return this[id];

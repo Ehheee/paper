@@ -17,7 +17,7 @@ define([], function() {
         this.greifer = this.greifer ? this.greifer: {};
         this.realProductSize.height = this.productSize.height + (this.bleed.top ? this.bleed.top: 0) + (this.bleed.bottom ? this.bleed.bottom : 0);
         this.realProductSize.width = this.productSize.width + (this.bleed.left ? this.bleed.left : 0) + (this.bleed.right ? this.bleed.right : 0);
-        this.realPaperSize.height = this.paperSize.height - (this.greifer.top ? this.bleed.top: 0) - (this.greifer.bottom ? this.greifer.bottom : 0);
+        this.realPaperSize.height = this.paperSize.height - (this.greifer.top ? this.greifer.top: 0) - (this.greifer.bottom ? this.greifer.bottom : 0);
         this.realPaperSize.width = this.paperSize.width - (this.greifer.left ? this.greifer.left: 0) - (this.greifer.right ? this.greifer.right : 0);
     };
     module.prototype.switchProduct = function() {

@@ -1,4 +1,16 @@
 define(["backbone", "app/templateLoader"], function(Backbone, templateLoader) {
+    /*
+     * Possible options:
+     * key - used as label and added in change trigger for recognizing input
+     * value - preinserted value for basic input
+     * values - Possible values to be used in a SELECT.
+     * selected - the currently selected value when using multiple values for a SELECT.
+     * suggests - Used for displaying suggestions.
+     * suggests.range - Used for displaying a range of numbers as suggestions.
+     * showKey - Used for displaying a property of element in a SELECT if it should be different than KEY
+     * valueKey - Used for specifying, which property of a SELECT list item should be used as input value.
+     * callback - Function to call after changed input
+     */
     var uniqueId = 0;
     var getId = function() {
         uniqueId++;
@@ -62,6 +74,9 @@ define(["backbone", "app/templateLoader"], function(Backbone, templateLoader) {
         afterInput: function() {
             console.log("!!!");
             this.trigger("input:changed",this.key, this.getValue());
+            if (this.callback) {
+                this.callback(this.key, this.getValue());
+            }
             this.changed = true;
         },
         getValue: function() {

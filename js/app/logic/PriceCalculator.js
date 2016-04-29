@@ -9,19 +9,20 @@ define([], function() {
      * amountPerProduct - how many time this operation has to be carried out on a product
      * 
      */
-    var module = function() {
+    var module = function(priceComponents) {
+        this.priceComponents = priceComponents;
         return this;
     };
-    module.prototype.setOperations = function(operations) {
-        this.operations = operations;
+    module.prototype.setPriceComponents = function(priceComponents) {
+        this.priceComponents = priceComponents;
         return this;
     };
-    module.prototype.setOperation = function(key, value) {
-        this.operations[key] = value;
+    module.prototype.addPriceComponent = function(value) {
+        this.priceComponents.push(value);
         return this;
     };
     module.prototype.calculatePrice = function(productAmount) {
-        _.each(this.operations, function(o, key) {
+        _.each(this.priceComponents, function(c, key) {
             var a = o.amount ? o.amount : productAmount;
             var operationPrice = 0;
             operationPrice += o.pricePerProduct ? o.pricePerProduct*a : 0;
