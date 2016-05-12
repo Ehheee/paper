@@ -1,12 +1,20 @@
 define(["backbone",
-        "app/data/ThingServer",
+        "app/data/thingServer",
+        "app/data/paperModel",
         "app/templateLoader",
-        "app/views/common/Button",
+        "app/utils",
+        "app/views/common/Input",
+        "app/views/common/InputGroup",
+        "app/views/paper/PaperCanvas",
         "app/logic/PriceCalculator"
        ],function(Backbone, 
-                  ThingServer,
+                  thingServer,
+                  model,
                   templateLoader,
-                  Button,
+                  utils,
+                  Input,
+                  InputGroup,
+                  PaperCanvas,
                   PriceCalculator) {
     var module = Backbone.View.extend({
         template: templateLoader.get("orderEditTemplate"),
@@ -28,7 +36,10 @@ define(["backbone",
         renderUserInputs: function() {
             this.amountInput = new Input({key: "amount", value: this.order.amount, callback: this.onUserInputChange.bind(this)});
             this.productHeightInput = new Input({key: "productHeight", value: this.order.height,  callback: this.onUserInputChange.bind(this)});
-            this.productWidthInput = new Input({key: "productWidth", value: this.order.width,  callback: this.onUserInputChange.bind(this)});            
+            this.productWidthInput = new Input({key: "productWidth", value: this.order.width,  callback: this.onUserInputChange.bind(this)});
+            this.bleedsInput = new InputGroup({keys: ["bleedTop", "bleedRight", "bleedBottom", "bleedLeft"], model: this.order, callback: this.onUserInputChange.bind(this)});
+            this.$(".userInputs").append(this.amountInput.render().$el).append(this.productHeightInput.render().$el).append(this.productWidthInput.render().$el);
+            this.$(".userInputs").append(this.bleedsInput.render().$el);
         },
         renderPriceComponents: function() {
             this.priceComponentViews = [];
@@ -56,13 +67,14 @@ define(["backbone",
             console.log(save);
         },
         onUserInputChange: function(key, value) {
-            this.order[key] = value;
-            this.priceCalculator.calculate();
+            this.order[key] = utils.stringToType(value);
+            console.log(this.order);
+            this.priceCalculator.calculatePrices(this.order);
             
         },
         checkOrCreateOrder: function() {
             if (!this.order) {
-                this.order = {name: "", height: 152, width: 102, amount: 1, priceComponents: []};
+                this.order = {name: "", bleedTop: 3, bleedRight: 3, bleedBottom: 3, bleedLeft: 3, height: 152, width: 102, amount: 1, priceComponents: []};
             }
         }
     });

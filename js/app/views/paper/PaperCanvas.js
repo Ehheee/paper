@@ -31,6 +31,7 @@ define(["app/views/common/Canvas"], function(Canvas) {
             this.render();
         }
     });
+    /*
     var c = document.createElement("canvas");
     c.width = 1600;
     c.height = 700;
@@ -41,5 +42,6 @@ define(["app/views/common/Canvas"], function(Canvas) {
         ctx.strokeRect(650, 200, 200, 200);
         ctx.rotate(1);
     }
+    */
     return module;
 });

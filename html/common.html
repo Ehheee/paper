@@ -4,3 +4,23 @@
         <input name="<%=key%>" value="<%=value%>"></input>
     </div>
 </script>
+<script type="text/template" id="mainViewTemplate">
+        <div class="js_mainMenu mainMenuContainer"></div>
+        <div class="js_mainContent mainContent"></div>
+</script>
+<script type="text/template" id="mainMenuItem">
+    <a class="mainMenuItem" href="<%=appRoot%><%=menuItemLink%>"><%=menuItemName%></a>
+</script>
+<script type="text/template" id="mainMenu">
+<div class="mainMenu">
+    <div class="js_mainMenuItems"></div>
+    <div class="js_subMenu"></div>
+</div>
+</script>
+<script type="text/template" id="loginView">
+    <span>Login:</span>
+    <input placeholder="username" class="username" type="text"></input>
+    <input placeholder="password" class="password" type="password"></input>
+    <button class="js_submit" type="button">Submit</button>
+    <span class="error block"></span>
+</script>

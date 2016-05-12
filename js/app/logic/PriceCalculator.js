@@ -2,12 +2,12 @@ define([], function() {
     /*
      * Price in cents
      * Time in minutes
-     * pricePerProduct - how much this opetion costs per one product
-     * timePerProduct - how much time is spent per product
-     * pricePerTime - if each time unit spent also costs in addition to pricePerProduct
-     * prepareTime -how much time it takes to start the operation - this might cost money
-     * amountPerProduct - how many time this operation has to be carried out on a product
-     * 
+     * amountPerProduct - how much times this component is "activated" per single product. For example paper can be 1/6 and making a die 2.
+     * amount - how much times this component is "activated" overall. If set, then amountPerProduct is not used.
+     * pricePerOperation - price per each "activation" of this component. For example materials
+     * timePerOperation - how much time is spent on each "activation"
+     * pricePerTime - if each unit of time costs something extra. For example wages and electricity.
+     * otherExpences - for specyfing other random costs that are only payed once per component.
      */
     var module = function(priceComponents) {
         this.priceComponents = priceComponents;
@@ -21,18 +21,19 @@ define([], function() {
         this.priceComponents.push(value);
         return this;
     };
-    module.prototype.calculatePrice = function(productAmount) {
-        _.each(this.priceComponents, function(c, key) {
-            var a = o.amount ? o.amount : productAmount;
-            var operationPrice = 0;
-            operationPrice += o.pricePerProduct ? o.pricePerProduct*a : 0;
-            operationPrice += o.price || 0;
-            operationPrice += o.prepareTimeCost ? o.prepareTimeCost*o.prepareTime: 0;
-            operationPrice += o.pricePerTime ? o.timePerProduct * a * o.pricePerTime : 0;
-            o.operationPrice = operationPrice;
-            
+    module.prototype.calculatePrices = function(order) {
+        _.each(order.priceComponents, function(component, i) {
+            var amount = component.amount ? component.amount : order.amount * component.amountPerProduct;
+            var componentTotal = 0;
+            componentTotal += component.otherExpences ? component.otherExpences : 0;
+            if (component.timePerOperation && component.pricePerTime) {
+                componentTotal += component.timePerOperation * amount * component.pricePerTime;
+            }
+            if (component.pricePerOperation) {
+                componentTotal += component.pricePerOperation * amount;
+            }
+            component.total = componentTotal;
         }, this);
-        return this;
     };
     return module;
 });

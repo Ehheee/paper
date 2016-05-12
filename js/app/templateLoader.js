@@ -7,8 +7,10 @@ define(["backbone", "app/config"], function(Backbone, config) {
 	};
 	var loaded = 0;
 	for (var i = 0; i < templateFiles.length; i++) {
+	    var u = config.appRootUrl + templateFiles[i];
+	    console.log(u);
 		$.ajax({
-			url: "/" + config.appRootUrl + templateFiles[i],
+			url: u
 			
 		}).done(function(html) {
 			html = $(html);
