@@ -1,8 +1,8 @@
 .black_bg {
     background-color: #000;
 }
-.hidden {
-    display: none;
+.inline {
+    display: inline-block;
 }
 .button {
     font-size: 1em;
@@ -14,4 +14,7 @@
     cursor: default;
     display: inline-block;
     margin: 8px 2px 0px 0px;
+}
+.hidden {
+    display: none;
 }

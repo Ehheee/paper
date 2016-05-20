@@ -3,6 +3,7 @@ define(["backbone"], function(Backbone) {
         tagName: "canvas",
         initialize: function() {
             this.ctx = this.el.getContext('2d');
+            this.zoom = 2;
         },
         setSize: function(width, height) {
             this.el.width = width;
