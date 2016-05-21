@@ -14,13 +14,6 @@ define(["app/views/common/Canvas"], function(Canvas) {
                     this.ctx.strokeStyle = "#AAA";
                     this.ctx.setLineDash([]);
                     this.ctx.strokeRect(r.x*this.zoom, r.y*this.zoom, r.width*this.zoom, r.height*this.zoom);
-                } else if (r.type === "bleed") {
-                    /*
-                    this.ctx.strokeStyle = "#FF0040";
-                    this.ctx.setLineDash([3, 3]);
-                    this.ctx.lineWidth = 1;
-                    this.ctx.strokeRect(r.x*this.zoom, r.y*this.zoom, r.width*this.zoom, r.height*this.zoom);
-                    */
                 } else if (r.type === "bleed2") {
                     this.ctx.strokeStyle = "#FF0040";
                     this.ctx.setLineDash([1, 1]);
@@ -32,7 +25,6 @@ define(["app/views/common/Canvas"], function(Canvas) {
                     this.ctx.fillStyle = "#000";
                     this.ctx.strokeStyle = "#000";
                     this.ctx.setLineDash([]);
-                    this.ctx.lineWidth = r.productStroke;
                     this.ctx.fillRect(r.x*this.zoom, r.y*this.zoom, r.width*this.zoom, r.height*this.zoom);
                     this.ctx.strokeRect(r.x*this.zoom, r.y*this.zoom, r.width*this.zoom, r.height*this.zoom);
                 } else if (r.type === "fold") {

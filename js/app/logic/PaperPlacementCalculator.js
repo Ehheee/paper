@@ -60,27 +60,28 @@ define([], function() {
                 this.switchProduct();
             }
         }
-        var x = this.checkRemainingArea();
-        if (x > 0) {
-            this.hasExtra = x;
-        }
+        this.checkRemainingArea();
     };
     module.prototype.checkRemainingArea = function() {
         var byHeight = Math.floor(this.realPaperSize.height / this.realProductSize.height);
         var byWidth = Math.floor(this.realPaperSize.width / this.realProductSize.width);
-        var r = 0;
-        if ((this.realPaperSize.height - byHeight * this.realProductSize.height) > this.realProductSize.width) {
-            r = Math.floor(this.realPaperSize.width / this.realProductSize.height);
-            this.hasExtraHeight = r > 0;
-            this.hasExtraWidth = false;
+        var result = 0;
+        this.hasExtraHeight = false;
+        this.hasExtraWidth = false;
+        var r2 = Math.floor((this.realPaperSize.height - byHeight * this.realProductSize.height) / this.realProductSize.width);
+        if (r2 >= 1) {
+            var r = Math.floor(this.realPaperSize.width / this.realProductSize.height);
+            this.hasExtraHeight = {x: r, y: r2};
+            result = r * r2;
         } 
-        if ((this.realPaperSize.width - byWidth * this.realProductSize.width) > this.realProductSize.height) {
+        r2 = Math.floor((this.realPaperSize.width - byWidth * this.realProductSize.width) / this.realProductSize.height);
+        if (r2 >= 1) {
             r = Math.floor(this.realPaperSize.height / this.realProductSize.width);
-            this.hasExtraWidth = r > 0;
-            this.hasExtraHeight = false;
+            this.hasExtraWidth = {x: r2, y: r};
+            result = r * r2;
         }
-        console.log(r);
-        return r;
+        console.log(result);
+        return result;
     };
     module.prototype.getResult = function() {
         this.productPlacement();
@@ -99,19 +100,18 @@ define([], function() {
         var pagesPerPaper = this.getPagesPerPaper();
         return Math.ceil(this.order.amount * (this.order.numPages / pagesPerPaper) / (this.order.twoSided ? 2 : 1));
     };
-    module.prototype.getRectangles = function() {
-        var rectangles = [];
-        var byHeight = Math.floor(this.realPaperSize.height / this.realProductSize.height);
-        var byWidth = Math.floor(this.realPaperSize.width / this.realProductSize.width);
-        var bleedEnd = {};
+    module.prototype.getRectangles = function(rectangles, byWidth, byHeight, startPosition) {
+        var rectangles = rectangles || [];
+        var byHeight = byHeight || Math.floor(this.realPaperSize.height / this.realProductSize.height);
+        var byWidth = byWidth || Math.floor(this.realPaperSize.width / this.realProductSize.width);
+        var startPosition = startPosition || {x: 0, y: 0};
         for (var x = 0; x < byWidth; x++) {
             for (var y = 0; y < byHeight; y++) {
                 var r = {type: "product"};
-                r.x = x * this.realProductSize.width + (this.order.greiferLeft || 0) +1;
-                r.y = y * this.realProductSize.height + (this.order.greiferTop || 0) +1;
-                r.width = this.realProductSize.width - 1  + (x == 0 ? this.order. bleedLeft - this.order.cuttingGap/2: 0) + (x == (byWidth-1) ? this.order.bleedRight - this.order.cuttingGap/2 : 0);
-                r.height = this.realProductSize.height - 1 + (y == 0 ? this.order.bleedTop - this.order.cuttingGap/2 : 0) + (y == (byHeight -1) ? this.order.bleedBottom - this.order.cuttingGap/2 : 0);
-                
+                r.x = x * this.realProductSize.width + (this.order.greiferLeft && startPosition.x == 0 ? this.order.greiferLeft : 0) +1 + (startPosition.x);
+                r.y = y * this.realProductSize.height + (this.order.greiferTop && startPosition.y == 0 ? this.order.greiferTop : 0) +1 + (startPosition.y);
+                r.width = this.realProductSize.width - 1  + (x == 0 ? this.order. bleedLeft - this.order.cuttingGap/2: 0) + (x == (byWidth-1) && (!this.hasExtraWidth || startPosition.x != 0) ? this.order.bleedRight - this.order.cuttingGap/2 : 0);
+                r.height = this.realProductSize.height - 1 + (y == 0 ? this.order.bleedTop - this.order.cuttingGap/2 : 0) + (y == (byHeight -1) && (!this.hasExtraHeight || startPosition.y != 0) ? this.order.bleedBottom - this.order.cuttingGap/2 : 0);
                 
                 if (x != 0) {
                     r.x = r.x + this.order.bleedLeft - this.order.cuttingGap/2;
@@ -119,36 +119,24 @@ define([], function() {
                 if (y != 0) {
                     r.y = r.y + this.order.bleedTop - this.order.cuttingGap/2;
                 }
+                rectangles.push(r);
                 if (x == byWidth -1 && y == 0) {
-                    bleedEnd.x = r.x + r.width - this.order.bleedRight;
-                    if (this. hasExtraWidth) {
-                        var o = this.hasExtra;
-                        for (var i = 0; i < o ; i++) {
-                            var r2 = {type: "product"};
-                            r2.x = r.x + r.width;
-                            r2.y = i * this.realProductSize.width + (this.order.greiferTop || 0) +1;
-                            r2.height = this.realProductSize.width - 1 + (i == 0 ? this.order.bleedTop - this.order.cuttingGap/2 : 0) + (i == (o -1) ? this.order.bleedBottom - this.order.cuttingGap/2 : 0);
-                            r2.width = this.realProductSize.height - 1 + this.order.bleedRight - this.order.cuttingGap /2;
-                            rectangles.push(r2);
-                        }
+                    if (this. hasExtraWidth && startPosition.x == 0) {
+                        var s = {x: r.x + r.width + this.order.cuttingGap/2 - this.order.bleedLeft, y: 0};
+                        this.switchProduct();
+                        rectangles = this.getRectangles(rectangles, this.hasExtraWidth.x, this.hasExtraWidth.y, s);
+                        this.switchProduct();
                     }
                 }
                 if (y == byHeight -1 && x == 0) {
-                    bleedEnd.y = r.y + r.height - this.order.bleedBottom;
-                    if (this.hasExtraHeight) {
-                        var o = this.hasExtra;
-                        for (var i = 0; i < o ; i++) {
-                            var r2 = {type: "product"};
-                            r2.y = r.y + r.height;
-                            r2.x = i * this.realProductSize.height + (this.order.greiferLeft || 0) +1;
-                            r2.height = this.realProductSize.width -1 + this.order.bleedBottom - this.order.cuttingGap /2;
-                            r2.width = this.realProductSize.height -1 + (i == 0 ? this.order.bleedLeft - this.order.cuttingGap/2 : 0) + (i == (o -1) ? this.order.bleedRight - this.order.cuttingGap/2 : 0);
-                            rectangles.push(r2);
-                        }
+                    if (this.hasExtraHeight && startPosition.y == 0) {
+                        var s = {x: 0, y: r.y + r.height + this.order.cuttingGap/2 - this.order.bleedTop};
+                        this.switchProduct();
+                        rectangles = this.getRectangles(rectangles, this.hasExtraHeight.x, this.hasExtraHeight.y, s);
+                        this.switchProduct();
                     }
                 }
-                rectangles.push(r);
-                if (y == 0) {
+                if (y == 0 && startPosition.y == 0) {
                     var b = {type: "bleed2", start: {}, end: {}};
                     b.start.x = r.x;
                     b.end.x = r.x + r.width;
@@ -156,7 +144,7 @@ define([], function() {
                     b.end.y = r.y + this.order.bleedTop;
                     rectangles.push(b);
                 }
-                if (x == 0) {
+                if (x == 0 && startPosition.x == 0) {
                     var b = {type: "bleed2", start: {}, end: {}};
                     b.start.y = r.y;
                     b.end.y = r.y + r.height;
@@ -164,26 +152,29 @@ define([], function() {
                     b.end.x = r.x + this.order.bleedLeft;
                     rectangles.push(b);
                 }
-                
-                /*
-                rectangles.push({
-                    x: x*this.realProductSize.width - (this.order.cuttingGap / 2) + (this.order.greiferLeft ? this.order.greiferLeft : 0) + (x == 0 ? this.order.bleedLeft : 0),
-                    y: y*this.realProductSize.height - (this.order.cuttingGap / 2) + (this.order.greiferTop ? this.order.greiferTop : 0),
-                    width: this.realProductSize.width + (this.order.cuttingGap / 2),
-                    height: this.realProductSize.height + (this.order.cuttingGap / 2),
-                    type: "border"
-                 });
-                 */
-                
-                 /*
-                rectangles.push({
-                    x: x*this.realProductSize.width +1,
-                    y: y*this.realProductSize.height +1,
-                    width: this.realProductSize.width -1,
-                    height: this.realProductSize.height -1,
-                    type: "fill"
-                });
-                */
+                if (x == byWidth - 1 && (!this.hasExtraWidth || startPosition.x != 0)) {
+                    var b = {type: "bleed2", start: {}, end: {}};
+                    b.start.x = r.x + r.width - this.order.bleedRight;
+                    b.start.y = r.y;
+                    b.end.x = r.x + r.width - this.order.bleedRight;
+                    b.end.y = r.y + r.height;
+                    rectangles.push(b);
+                }
+                if (y == byHeight -1 && (!this.hasExtraHeight || startPosition.y !=0)) {
+                    var b = {type: "bleed2", start: {}, end: {}};
+                    b.start.x = r.x;
+                    b.end.x = r.x + r.width;
+                    b.start.y = r.y + r.height - this.order.bleedBottom;
+                    b.end.y = r.y + r.height - this.order.bleedBottom;
+                    rectangles.push(b);
+                }
+                if (x != byWidth -1 && y != byHeight -1) {
+                    var b = {type: "cutting", start: {}, end: {}};
+                    b.start.x = r.x;
+                    b.end.x = r.x + r.width;
+                    b.start.y = r.y + r.height;
+                    b.end.y = r.y + r.height;
+                }
                 if (this.folding) {
                     for (var i = 0; i < this.folding.cutPoints; i++) {
                         var c = this.folding.cutPoints[i];
@@ -198,12 +189,10 @@ define([], function() {
                 }
             }
         }
-        var b = {type: "bleed"};
-        b.x = 1 + this.order.bleedLeft + (this.order.greiferLeft || 0);
-        b.y = 1 + this.order.bleedTop + (this.order.greiferTop || 0);
-        b.width = bleedEnd.x - b.x;
-        b.height = bleedEnd.y - b.y;
-        rectangles.push(b);
+        rectangles.push(this.getGreiferLine());
+        return rectangles;
+    };
+    module.prototype.getGreiferLine = function() {
         var r = {type: "greifer", start: {}, end: {}};
         if (this.order.greiferTop) {
             r.start.x = 0;
@@ -229,8 +218,7 @@ define([], function() {
             r.start.y = this.paperSize.height - this.order.greiferBottom;
             r.end.y = this.paperSize.height - this.order.greiferBottom;
         }
-        rectangles.push(r);
-        return rectangles;
+        return r;
     };
     return module;
 });
