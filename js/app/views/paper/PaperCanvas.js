@@ -10,11 +10,8 @@ define(["app/views/common/Canvas"], function(Canvas) {
         renderRectangles: function() {
             for (var i = 0; i < this.rectangles.length; i++) {
                 var r = this.rectangles[i];
-                if (r.type === "border" ) {
-                    this.ctx.strokeStyle = "#AAA";
-                    this.ctx.setLineDash([]);
-                    this.ctx.strokeRect(r.x*this.zoom, r.y*this.zoom, r.width*this.zoom, r.height*this.zoom);
-                } else if (r.type === "bleed2") {
+                this.ctx.lineWidth = 1;
+                if (r.type === "bleed2") {
                     this.ctx.strokeStyle = "#FF0040";
                     this.ctx.setLineDash([1, 1]);
                     this.ctx.beginPath();
@@ -35,6 +32,14 @@ define(["app/views/common/Canvas"], function(Canvas) {
                 } else if (r.type === "greifer") {
                     this.ctx.setLineDash([8, 4]);
                     this.ctx.strokeStyle = "#FFFF00";
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(r.start.x*this.zoom, r.start.y*this.zoom);
+                    this.ctx.lineTo(r.end.x*this.zoom, r.end.y*this.zoom);
+                    this.ctx.stroke();
+                } else if (r.type === "cutting") {
+                    this.ctx.setLineDash([]);
+                    this.ctx.strokeStyle = "#EEE";
+                    this.ctx.lineWidth = r.lineWidth;
                     this.ctx.beginPath();
                     this.ctx.moveTo(r.start.x*this.zoom, r.start.y*this.zoom);
                     this.ctx.lineTo(r.end.x*this.zoom, r.end.y*this.zoom);

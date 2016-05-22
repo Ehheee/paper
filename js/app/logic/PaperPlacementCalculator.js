@@ -168,12 +168,23 @@ define([], function() {
                     b.end.y = r.y + r.height - this.order.bleedBottom;
                     rectangles.push(b);
                 }
-                if (x != byWidth -1 && y != byHeight -1) {
-                    var b = {type: "cutting", start: {}, end: {}};
-                    b.start.x = r.x;
-                    b.end.x = r.x + r.width;
-                    b.start.y = r.y + r.height;
-                    b.end.y = r.y + r.height;
+                if (y != byHeight -1 || (this.hasExtraHeight && startPosition.y == 0)) {
+                    var c = {type: "cutting", start: {}, end: {}};
+                    c.start.x = r.x;
+                    c.end.x = r.x + r.width;
+                    c.start.y = r.y + r.height;
+                    c.end.y = r.y + r.height;
+                    c.lineWidth = this.order.cuttingGap;
+                    rectangles.push(c);
+                }
+                if (x != byWidth -1 || (this.hasExtraWidth && startPosition.x == 0)) {
+                    var c = {type: "cutting", start: {}, end: {}};
+                    c.start.x = r.x + r.width;
+                    c.end.x = r.x + r.width;
+                    c.start.y = r.y;
+                    c.end.y = r.y + r.height;
+                    c.lineWidth = this.order.cuttingGap;
+                    rectangles.push(c);
                 }
                 if (this.folding) {
                     for (var i = 0; i < this.folding.cutPoints; i++) {

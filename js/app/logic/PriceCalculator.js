@@ -1,5 +1,6 @@
 define([], function() {
     /*
+     * 
      * Price in cents
      * Time in minutes
      * amountPerProduct - how much times this component is "activated" per single product. For example paper can be 1/6 and making a die 2.
