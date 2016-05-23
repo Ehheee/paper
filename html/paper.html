@@ -9,14 +9,22 @@
     </div>
     <div class="js_addComponent button">+</div>
     <div class="js_canvasContainer">
-        
     </div>
 </script>
+<script type="text/template" id="priceComponentListTemplate">
+    <div class="js_filter"></div>
+    <div class="js_list"></div>
+</script>
+<script type="text/template" id="priceComponentEditTemplate">
+    <div class="js_labels"></div>
+    <div class="js_id"><%=id%></div>
+    <div class="js_fields"></div>
+    <div class="js_addField button">+</div>
+    <div class="js_save button">save</div>
+</script>
 <script type="text/template" id="priceComponentFieldEditTemplate">
-    <div>
-        <div class="inputContainer js_fieldType"></div>
-        <div class="inputContainer js_fieldValue"></div>
-    </div>
+        <div class="inputContainer inline js_fieldType"></div>
+        <div class="inputContainer inline js_fieldValue"></div>
 </script>
 <script type="text/template" id="priceComponentSelectTemplate">
     <div class="js_componentSelect inline"></div>

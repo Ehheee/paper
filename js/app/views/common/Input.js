@@ -56,6 +56,9 @@ define(["backbone", "app/templateLoader", "app/utils"], function(Backbone, templ
                     this.$("input").attr("checked", "checked");
                 }
             }
+            if (this.disabled) {
+                this.$("input").attr("disabled", "disabled");
+            }
             return this;
         },
         renderSuggests : function() {

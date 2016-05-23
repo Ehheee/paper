@@ -1,4 +1,4 @@
-define(["backbone", "app/views/common/Input"], function(Backbone, Input) {
+define(["backbone", "app/templateLoader", "app/views/common/Input"], function(Backbone, templateLoader, Input) {
     /*
      * Price in cents
      * Time in minutes
@@ -14,10 +14,13 @@ define(["backbone", "app/views/common/Input"], function(Backbone, Input) {
         template: templateLoader.get("priceComponentFieldEditTemplate"),
         render: function() {
             this.$el.html(this.template({}));
-            this.fieldTypeInput = new Input({key: "fieldType", element: this.$(".js_fieldType"), suggests: this.fields, value: this.type});
+            this.fieldTypeInput = new Input({key: "fieldType", element: this.$(".js_fieldType"), suggests: this.fields, value: this.type || ""});
+            this.fieldTypeInput.render();
             this.listenTo(this.fieldTypeInput, "input:changed", this.onChange);
-            this.fieldValueInput = new Input({key: "fieldValue", element: this.$(".js_fieldValue"), suggests: valueSuggestions, value: this.value});
+            this.fieldValueInput = new Input({key: "fieldValue", element: this.$(".js_fieldValue"), suggests: valueSuggestions, value: this.value || ""});
+            this.fieldValueInput.render();
             this.listenTo(this.fieldValueInput, "input:changed", this.onChange);
+            return this;
         },
         initialize: function(options) {
             _.extend(this, options);
@@ -30,9 +33,12 @@ define(["backbone", "app/views/common/Input"], function(Backbone, Input) {
                     var denominator = value.slice(s + 1);
                     value = numerator / denominator;
                 }
+                this.value = value;
+            } else {
+                this.type = value;
             }
-            this.trigger("field:changed", key, value);
-        }
+            this.trigger("field:changed", this.type, this.value);
+        },
     });
     return module;
 });

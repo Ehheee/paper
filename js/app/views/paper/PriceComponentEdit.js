@@ -1,33 +1,67 @@
-define(["backbone", "app/data/ThingServer", "app/data/paperModel", "app/views/paper/PriceComponentFieldEdit"], function(Backbone, ThingServer, paperModel, PriceComponentFieldEdit) {
+define([
+    "backbone",
+    "app/templateLoader",
+    "app/data/paperModel",
+    "app/views/common/Input",
+    "app/views/paper/PriceComponentFieldEdit"
+    ], function(
+        Backbone,
+        templateLoader,
+        paperModel,
+        Input,
+        PriceComponentFieldEdit) {
     var fields = ["amountPerProduct", "amount", "pricePerOperation", "timePerOperation", "pricePerTime", "otherExpences"];
     var module = Backbone.View.extend({
-        /*
-         *  Possible options:
-         *  priceComponent - priceComponent model to show
-         *  
-         */
+        template: templateLoader.get("priceComponentEditTemplate"),
         events: {
             "click .js_addField": "addField",
             "click .js_save": "save",
-            "click .js_saveNew": "saveNew"
+            "click .js_saveAs": "saveAs"
         },
         initialize: function(options) {
-            _.extend(this, options);
+            this.priceComponent = {labels: ["template", "priceComponent"]};
             this.fieldInputs = [];
+            _.extend(this, options);
+            if (this.componentId) {
+                paperModel.getPriceComponentById(this.componentId, this.setComponent.bind(this));
+            }
+        },
+        setComponent: function(component) {
+            this.priceComponent = component;
+            this.trigger("view:render");
         },
         render: function() {
-            
+            this.$el.html(this.template({id: this.priceComponent.id || "-"}));
+            this.renderLabels();
+            this.renderFields();
+            return this;
+        },
+        renderLabels: function() {
+            var labelsDiv = this.$(".js_labels");
+            if (this.priceComponent.labels.length < 3) {
+                var input = new Input({label: "group", key: this.priceComponent.labels.length, callback: this.onLabelInput.bind(this)});
+                labelsDiv.append(input.render().$el);
+            }
+            for (var i = 0; i < this.priceComponent.labels.length; i++) {
+                var l = this.priceComponent.labels[i];
+                if (l !== "template" && l !== "priceComponent") {
+                    var input = new Input({label: "group", key: i, value: l, callback: this.onLabelInput.bind(this)}); 
+                    labelsDiv.append(input.render().$el);
+                }
+            }
         },
         renderFields: function() {
+            this.renderField("name");
             for (var i = 0; i < fields.length; i++) {
-                if (typeof this.priceComponent[fields[i]] !== "undefined") {
-                    this.renderField(fields[i]);
+                var f = fields[i];
+                if (typeof this.priceComponent[f] !== "undefined") {
+                    this.renderField(f);
                 }
             }
             var keys = _.keys(this.priceComponent);
             for (var i = 0; i < keys.length; i++) {
                 var k = keys[i];
-                if (fields.indexOf(k) < 0) {
+                if (fields.indexOf(k) < 0 && k !== "labels") {
                     this.renderField(k);
                 }
             }
@@ -35,14 +69,25 @@ define(["backbone", "app/data/ThingServer", "app/data/paperModel", "app/views/pa
         renderField: function(key) {
             var fieldView = new PriceComponentFieldEdit({type: key, value: this.priceComponent[key], fields: fields});
             this.listenTo(fieldView, "field:changed", this.onFieldChange);
-            this.$(".js_fields").append(fieldView);
+            this.$(".js_fields").append(fieldView.render().$el);
         },
         addField: function() {
-            var fieldTypeInput = new Input({key: this.fieldInputs.length, values: paperModel.getRootPriceComponent().fields});
-            var fieldValueInput = new Input({key: this.fieldInputs.length, value: 0});
-            this.fieldInputs.push({fieldType: fieldTypeInput, fieldValue: fieldValueInput});
+            var fieldView = new PriceComponentFieldEdit({fields: fields});
+            this.listenTo(fieldView, "field:changed", this.onFieldChange);
+            this.$(".js_fields").append(fieldView.render().$el);
         },
-        
+        onLabelInput: function(key, value) {
+            this.priceComponent.labels[key] = value;
+        },
+        onFieldChange: function(key, value) {
+            this.priceComponent[key] = value;
+        },
+        save: function() {
+            paperModel.savePriceComponent(this.priceComponent, this.saved.bind(this));
+        },
+        saved: function(data) {
+            this.$(".js_id").html(data.thing.id);
+        },
     });
     return module;
 });

@@ -43,7 +43,14 @@ define(["backbone", "app/templateLoader"], function(Backbone, templateLoader) {
         },
         routes: {
             "Home": "/",
-            "Orders": "/orders/",
+            "Orders": {
+                "List": "/orders/list/",
+                "New" : "/orders/edit/"
+            },
+            "PriceComponents": {
+                "List": "/pc/list/",
+                "New" : "/pc/edit/"
+            },
             "Log out": "/logout/"
         }
     });

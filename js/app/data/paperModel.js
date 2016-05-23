@@ -1,5 +1,8 @@
 define(["backbone"], function(Backbone) {
-    var module = function() {};
+    var module = function() {
+        this.templatePriceComponentsById = {};
+        this.templatePriceComponentsByLabel = {};
+    };
     var permanentPriceComponentGroupLabels = ["paper", "color", "folding"];
     module.prototype.getPriceComponentById = function(id) {
         for (var i = 0; i < this.priceComponents.length; i++) {
@@ -7,6 +10,12 @@ define(["backbone"], function(Backbone) {
             if (c.id === id) {
                 return c;
             }
+        }
+    };
+    module.prototype.savePriceComponent = function(priceComponent, callback) {
+        Backbone.trigger("request:data", {responseChannel: "priceComponent:saved", data: priceComponent, path: "thing/json/update"});
+        if (callback) {
+            Backbone.once("priceComponent:saved", callback);
         }
     };
     module.prototype.saveThingType = function() {
@@ -41,8 +50,25 @@ define(["backbone"], function(Backbone) {
             }
         }
     };
-    module.prototype.getTemplatePriceComponents = function() {
-        return this.templatePriceComponents;
+    module.prototype.getTemplatePriceComponents = function(f) {
+        Backbone.trigger("request:data", {responseChannel: "get:templatePriceComponents", path: "thing/json/get", data: {labels: f.labels, properties: f.properties, responseFormat: "resultWrapper"}});
+        Backbone.once("get:templatePriceComponents", this.processTemplatePriceComponents, this);
+    };
+    module.prototype.processTemplatePriceComponents = function(data) {
+        if (_.keys(data.things).length > 0) {
+            _.each(data.things, function(thing, id) {
+                this.templatePriceComponentsById[id] = thing;
+                if (thing.labels.length > 2) {
+                    for (var i = 0; i < thing.labels; i++) {
+                        if (thing.label === "template" || thing.label === "priceComponent") {
+                            continue;
+                        }
+                        this.templatePriceComponentsByLabel[thing.labels[i]][id] = thing;
+                    }
+                }
+            }, this);
+        }
+        this.trigger("templatePriceComponents:refreshed");
     };
     module.prototype.getFoldingByName = function(name) {
         for (var i = 0; i < this.foldings.length; i++) {

@@ -52,7 +52,6 @@ define([
         },
         initialize: function(options) {
             _.extend(this, options);
-            this.$el.html(this.template({}));
             this.$priceComponents = this.$(".js_priceComponents");
             this.paperCanvas = new PaperCanvas();
             this.priceCalculator = new PriceCalculator();
@@ -61,6 +60,7 @@ define([
             this.reCalculate();
         },
         render: function() {
+            this.$el.html(this.template({}));
             this.renderUserInputs();
             this.renderPriceComponents();
             this.renderPaperCanvas();
