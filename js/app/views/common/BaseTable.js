@@ -3,8 +3,8 @@ define([
     "app/templateLoader",
     "app/utils",
     //"app/views/common/FilterView",
-    "app/views/tabular/BaseTableRow",
-    "app/views/tabular/TableHeaderRow"
+    "app/views/common/BaseTableRow",
+    "app/views/common/TableHeaderRow"
     ], function(
         Backbone,
         templateLoader,
@@ -22,7 +22,7 @@ define([
 			"click .js_filterButton": "showFilter"
 		},
 		className: "tableContainer",
-		template: _.template(templateLoader.get("baseTableTemplate")),
+		template: templateLoader.get("baseTableTemplate"),
 		render: function() {
 			this.$el.html(this.template({title: this.name}));
 			this.createHeaderRow();
@@ -41,12 +41,14 @@ define([
 			this.rows = {};
 			this.filter = options.filter;
 			this.filterButton = options.filterButton;
-			this.setFilter();
 			this.name = options.name;
 			this.subEvents = options.subEvents;
 			this.columnDefinitions = options.columnDefinitions;
 			this.parent = options.parent;
-			this.filter.requestData();
+			if (this.filter) {
+			     this.setFilter();
+			     this.filter.requestData();
+			}
 		},
 		setFilter: function() {
 			this.listenTo(this.filter, "filter:newData", this.setData);

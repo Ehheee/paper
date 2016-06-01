@@ -18,7 +18,7 @@ define([
             "orders/list/": "listOrders",
             "orders/edit/(:id)" : "editOrder",
             "pc/list/": "listPriceComponents",
-            "pc/edit/(:id)": "editPriceComponent"
+            "pc/edit/(:id)/": "editPriceComponent"
         },
         initialize: function() {
             Backbone.on("router:navigate", this.navigate, this);
@@ -37,6 +37,7 @@ define([
         },
         listPriceComponents: function() {
             var view = new PriceComponentList({});
+            this.mainView.setView(view);
         },
         editPriceComponent: function(id) {
             var view = new PriceComponentEdit({componentId: id});

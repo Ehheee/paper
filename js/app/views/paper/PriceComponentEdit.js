@@ -11,6 +11,7 @@ define([
         Input,
         PriceComponentFieldEdit) {
     var fields = ["amountPerProduct", "amount", "pricePerOperation", "timePerOperation", "pricePerTime", "otherExpences"];
+    var preRenderedFields = ["id", "labels", "name"];
     var module = Backbone.View.extend({
         template: templateLoader.get("priceComponentEditTemplate"),
         events: {
@@ -23,7 +24,8 @@ define([
             this.fieldInputs = [];
             _.extend(this, options);
             if (this.componentId) {
-                paperModel.getPriceComponentById(this.componentId, this.setComponent.bind(this));
+                this.listenToOnce(paperModel, "component:"+this.componentId, this.setComponent);
+                paperModel.getPriceComponentById(this.componentId);
             }
         },
         setComponent: function(component) {
@@ -61,7 +63,7 @@ define([
             var keys = _.keys(this.priceComponent);
             for (var i = 0; i < keys.length; i++) {
                 var k = keys[i];
-                if (fields.indexOf(k) < 0 && k !== "labels") {
+                if (fields.indexOf(k) < 0 && preRenderedFields.indexOf(k) < 0) {
                     this.renderField(k);
                 }
             }

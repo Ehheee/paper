@@ -1,4 +1,4 @@
-define(["backbone", "jquery", "underscore", "app/views/tabular/BaseTableRow", "app/views/common/Input"], function(Backbone, $, _, BaseTableRow, Input) {
+define(["backbone", "jquery", "underscore", "app/views/common/BaseTableRow", "app/views/common/Input"], function(Backbone, $, _, BaseTableRow, Input) {
 	var module = BaseTableRow.extend({
 		events: {
 			"click .js_sort": "onClick"
