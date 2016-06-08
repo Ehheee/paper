@@ -20,22 +20,18 @@ define([
             this.renderList();
         },
         renderList: function() {
-            this.components = [];
-            _.each(paperModel.templatePriceComponentsById, function(component, id) {
-                this.components.push(component);
-            }, this);
             var table = new BaseTable({
                 columnDefinitions: [
                     {keyList: ["id"], title: "id", cellFormat: this.resultCellFormat},
                     {keyList: ["name"], title: "name",cellFormat: this.resultCellFormat}
                 ]
             });
-            table.setData(this.components);
+            table.setData(this.orders);
             this.$(".js_list").html(table.$el);
         },
         resultCellFormat: function(cell, value) {
             var href = $(document.createElement("a"));
-            href.attr("href", "/paper/pc/edit/" + this.model.id + "/").text(value);
+            href.attr("href", "/paper/order/edit/" + this.model.id + "/").text(value);
             cell.html(href);
         },
         triggerRender: function() {
@@ -49,10 +45,12 @@ define([
             }
         },
         requestData: function() {
-            paperModel.getTemplatePriceComponents(this.filter);
-            this.listenToOnce(paperModel, "templatePriceComponents:refreshed", this.triggerRender);
+            paperModel.getOrders(this.filter, this.setOrders.bind(this));
         },
-        
+        setOrders: function(data) {
+            this.orders = data;
+            this.triggerRender();
+        }
     });
     return module;
 });

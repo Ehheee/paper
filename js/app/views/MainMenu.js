@@ -29,6 +29,7 @@ define(["backbone", "app/templateLoader"], function(Backbone, templateLoader) {
         },
         linkClick: function(evt) {
             evt.preventDefault();
+            evt.stopPropagation();
             var routeKey = evt.target.innerHTML;
             var action = this.routes[routeKey];
             if (action) {
@@ -44,8 +45,8 @@ define(["backbone", "app/templateLoader"], function(Backbone, templateLoader) {
         routes: {
             "Home": "/",
             "Orders": {
-                "List": "/orders/list/",
-                "New" : "/orders/edit/"
+                "List": "/order/list/",
+                "New" : "/order/edit/"
             },
             "PriceComponents": {
                 "List": "/pc/list/",

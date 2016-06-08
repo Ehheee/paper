@@ -1,12 +1,27 @@
-define(["backbone", "jquery", "app/config",  "app/views/common/LoginView", "app/Router", "app/data/thingServer"], function(Backbone, $, config, LoginView, Router, thingServer) {
+define([
+    "backbone",
+    "jquery",
+    "app/config",
+    "app/views/common/LoginView",
+    "app/Router",
+    "app/data/thingServer",
+    "app/data/paperModel"
+    ], function(
+        Backbone,
+        $, config,
+        LoginView,
+        Router,
+        thingServer,
+        paperModel
+    ) {
     var module = function() {
-        this.thingServer = thingServer;
     };
     module.prototype.run = function() {
         appRootUrl = config["appRootUrl"];
         this.router = new Router();
         this.listenTo(this.router, "route:logout", this.onLogOut);
-        Backbone.history.start({pushState: true, hashChange: false, root: appRootUrl});
+        this.listenToOnce(paperModel, "templatePriceComponents:refreshed", this.startHistory);
+        paperModel.getTemplatePriceComponents({});
         /*
         Backbone.trigger("request:data", {method: "hello"}, "response:hello");
         Backbone.once("response:hello", function(response) {
@@ -17,6 +32,9 @@ define(["backbone", "jquery", "app/config",  "app/views/common/LoginView", "app/
             }
         }, this);
         */
+    };
+    module.prototype.startHistory = function() {
+        Backbone.history.start({pushState: true, hashChange: false, root: appRootUrl});
     };
     module.prototype.showLogin = function() {
         this.loginView = new LoginView();

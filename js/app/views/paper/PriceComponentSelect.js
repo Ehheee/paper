@@ -13,13 +13,25 @@ define(["backbone",
         },
         render: function() {
             this.$el.html(this.template({total: this.component ? this.component.total : 0}));
-            var suggests = model.getTemplatePriceComponentNames(this.label);
-            this.componentSelect = new Input({element: this.$(".js_componentSelect"), value: this.component ? this.component.name : "", key: "componentType", label: this.label, suggests: suggests, callback: this.onSelectNewPriceComponent.bind(this)});
-            this.componentSelect.render();
+            this.listenToOnce(model, "templatePriceComponents:refreshed", this.renderSelect);
+            model.getTemplatePriceComponents({labels: this.label ? [this.label] : []});
             return this;
         },
-        onSelectNewPriceComponent: function(key, value) {
-            var component = model.getTemplatePriceComponentByName(value);
+        renderSelect: function() {
+            var suggests = [];
+            if (this.label) {
+                _.each(model.templatePriceComponentsByLabel[this.label], function(s) {
+                    suggests.push(s);
+                });
+            } else {
+                _.each(model.templatePriceComponentsById, function(s) {
+                    suggests.push(s);
+                });
+            }
+            this.componentSelect = new Input({element: this.$(".js_componentSelect"), value: this.component ? this.component.name : "", key: "componentType", showKey: "name", label: this.label, suggests: suggests, callback: this.onSelectNewPriceComponent.bind(this)});
+            this.componentSelect.render();
+        },
+        onSelectNewPriceComponent: function(key, component) {
             if (typeof component !== "undefined") {
                 this.callback(this.key, component, this);
             }

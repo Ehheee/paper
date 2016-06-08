@@ -23,7 +23,8 @@ define([], function() {
         return this;
     };
     module.prototype.calculatePrices = function(order) {
-        _.each(order.priceComponents, function(component, i) {
+        _.each(order.relationsOutGoing.hasPriceComponent, function(component, i) {
+            component = component.to;
             var amount = component.amount ? component.amount : order.amount * component.amountPerProduct;
             var componentTotal = 0;
             componentTotal += component.otherExpences ? component.otherExpences : 0;

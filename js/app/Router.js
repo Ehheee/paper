@@ -3,6 +3,7 @@ define([
     "app/data/paperModel",
     "app/views/MainView",
     "app/views/paper/OrderEdit",
+    "app/views/paper/OrderList",
     "app/views/paper/PriceComponentEdit",
     "app/views/paper/PriceComponentList"
     ], function(
@@ -10,15 +11,16 @@ define([
         paperModel,
         MainView,
         OrderEdit,
+        OrderList,
         PriceComponentEdit,
         PriceComponentList
     ) {
     var module = Backbone.Router.extend({
         routes: {
-            "orders/list/": "listOrders",
-            "orders/edit/(:id)" : "editOrder",
+            "order/list/": "listOrders",
+            "order/edit/(:id/)" : "editOrder",
             "pc/list/": "listPriceComponents",
-            "pc/edit/(:id)/": "editPriceComponent"
+            "pc/edit/(:id/)": "editPriceComponent"
         },
         initialize: function() {
             Backbone.on("router:navigate", this.navigate, this);
@@ -26,14 +28,22 @@ define([
             this.mainView.render();
         },
         listOrders: function() {
+            var view = new OrderList({});
+            this.mainView.setView(view);
         },
         editOrder: function(id) {
-            var view = new OrderEdit({});
-            if (typeof id !== "undefined") {
-                
+            if (typeof id !== "undefined" && id !== null) {
+                this.listenToOnce(paperModel, "orders:get", this.showEditOrder);
+                paperModel.getOrders({properties: {id: id}});
             } else {
-                this.mainView.setView(view);
+                this.showEditOrder();
             }
+        },
+        showEditOrder: function(order) {
+            console.log(order);
+            var view = new OrderEdit({order: order ? order[0] : undefined});
+            this.mainView.setView(view);
+            this.mainView.render();
         },
         listPriceComponents: function() {
             var view = new PriceComponentList({});

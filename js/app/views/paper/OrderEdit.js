@@ -37,12 +37,12 @@ define([
         productWidth: 102,
         amount: 1,
         numPages: 1,
-        priceComponents: [
-            {labels: ["priceComponent", "paper"], pricePerOperation: 5, name: "A4", width: 210, height: 297},
-            {labels: ["priceComponent", "color"], pricePerOperation: 6, name: "cmyk", amountPerProduct: 4},
-            {labels: ["priceComponent", "color"], pricePerOperation: 10, name: "pantone", amountPerProduct: 5},
+        relationsOutGoing: {hasPriceComponent: [
+            {to: {labels: ["priceComponent", "paper"], pricePerOperation: 5, name: "A4", width: 320, height: 450}},
+            {to: {labels: ["priceComponent", "color"], pricePerOperation: 6, name: "cmyk", amountPerProduct: 4}},
+            {to: {labels: ["priceComponent", "color"], pricePerOperation: 10, name: "pantone", amountPerProduct: 5}},
             //{labels: ["priceComponent", "folding"], amountPerProduct: 1, pricePerOperation: 7, name: "ajaleht", sizeDifference: 2, vertical: true, cutPoints: [0.5]},
-        ],
+        ]},
     };
     var module = Backbone.View.extend({
         template: templateLoader.get("orderEditTemplate"),
@@ -52,7 +52,6 @@ define([
         },
         initialize: function(options) {
             _.extend(this, options);
-            this.$priceComponents = this.$(".js_priceComponents");
             this.paperCanvas = new PaperCanvas();
             this.priceCalculator = new PriceCalculator();
             this.priceComponentViews = [];
@@ -61,8 +60,10 @@ define([
         },
         render: function() {
             this.$el.html(this.template({}));
+            this.$priceComponents = this.$(".js_priceComponents");
             this.renderUserInputs();
-            this.renderPriceComponents();
+            this.listenToOnce(model, "templatePriceComponents:refreshed", this.renderPriceComponents);
+            model.getTemplatePriceComponents({});
             this.renderPaperCanvas();
         },
         renderUserInputs: function() {
@@ -78,15 +79,15 @@ define([
             this.$(".userInputs").append(this.twoSidedInput.render().$el);
         },
         renderPriceComponents: function() {
-            for (var i = 0; i < this.order.priceComponents.length; i++) {
-                var component = this.order.priceComponents[i];
+            for (var i = 0; i < this.order.relationsOutGoing.hasPriceComponent.length; i++) {
+                var component = this.order.relationsOutGoing.hasPriceComponent[i].to;
                 var priceComponentSelect;
                 if (model.belongsToPermanentPriceComponentGroup(component)) {
                     var label = model.getPermanentPriceComponentGroupLabel(component);
-                    priceComponentSelect = new PriceComponentSelect({component: component, key: i, label: label});
+                    priceComponentSelect = new PriceComponentSelect({component: component, key: i, label: label, callback: this.onComponentSelected.bind(this)});
                     this.$priceComponents.prepend(priceComponentSelect.render().$el);
                 } else {
-                    priceComponentSelect = new PriceComponentSelect({component: component, key: i});
+                    priceComponentSelect = new PriceComponentSelect({component: component, key: i, callback: this.onComponentSelected.bind(this)});
                     this.$priceComponents.append(priceComponentSelect.render().$el);
                 }
                 this.priceComponentViews.push(priceComponentSelect);
@@ -101,10 +102,10 @@ define([
         },
         onComponentSelected: function(key, component, selectView) {
             if (typeof key !== "undefined") {
-                this.order.priceComponents[key] = component;
+                this.order.relationsOutGoing.hasPriceComponent[key].to = component;
             } else {
-                this.order.priceComponents.push(component);
-                selectView.key = this.order.priceComponents.length - 1;
+                this.order.relationsOutGoing.hasPriceComponent.push({to: component});
+                selectView.key = this.order.relationsOutGoing.hasPriceComponent.length - 1;
             }
             
         },
@@ -136,7 +137,7 @@ define([
         setTotals: function() {
             for (var i = 0; i < this.priceComponentViews.length; i++) {
                 var v = this.priceComponentViews[i];
-                var c = this.order.priceComponents[i];
+                var c = this.order.relationsOutGoing.hasPriceComponent[i].to;
                 v.setTotal(c.total);
             }
         },
@@ -144,7 +145,7 @@ define([
             this.$(".js_saveOrder").show();
         },
         saveOrder: function() {
-            console.log(save);
+            model.saveOrder(this.order);
         },
         onUserInputChange: function(key, value) {
             this.order[key] = utils.stringToType(value);
@@ -161,8 +162,8 @@ define([
         },
         getComponentByLabel: function(label) {
             var results = [];
-            for (var i = 0; i < this.order.priceComponents.length; i++) {
-                var c = this.order.priceComponents[i];
+            for (var i = 0; i < this.order.relationsOutGoing.hasPriceComponent.length; i++) {
+                var c = this.order.relationsOutGoing.hasPriceComponent[i].to;
                 var k = c.labels.indexOf(label);
                 if (k > -1) {
                     results.push(c);

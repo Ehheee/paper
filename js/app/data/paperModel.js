@@ -27,14 +27,49 @@ define(["backbone", "app/utils"], function(Backbone, utils) {
             Backbone.once("priceComponent:saved", callback);
         }
     };
-    module.prototype.saveThingType = function() {
-        
+    module.prototype.saveOrder = function(order) {
+        order = utils.cloneJson(order);
+        order.labels = ["order"];
+        for (var i = 0; i < order.relationsOutGoing.hasPriceComponent.length; i++) {
+            var c = order.relationsOutGoing.hasPriceComponent[i].to;
+            var j = c.labels.indexOf("template");
+            if (j > -1) {
+                c.labels.splice(j, 1);
+                delete c.id;
+            }
+        }
+        Backbone.once("order:saved", this.processSavedOrder, this);
+        Backbone.trigger("request:data", {responseChannel: "order:saved", data: order, path: "thing/json/update"});
+    };
+    module.prototype.getOrders = function(f, callback) {
+        if (!f.labels) {
+            f.labels = [];
+        }
+        f.labels = ["order"].concat(f.labels);
+        Backbone.once("orders:get", this.processOrders.bind(this, callback));
+        Backbone.trigger("request:data", {responseChannel: "orders:get", data: {labels: f.labels, properties: f.properties, responseFormat: "resultWrapper"}, path: "/thing/json/get"});
+    };
+    module.prototype.processOrders = function(callback, data) {
+        var result = [];
+        _.each(data.things, function(t) {
+            var o = this.orderFromThing(t);
+            if (o.labels.indexOf("order") > -1) {
+                result.push(o);
+            }
+        }, this);
+        if (callback) {
+            callback(result);
+        }
+        this.trigger("orders:get", result);
+    };
+    module.prototype.processSavedOrder = function(data) {
+        console.log(data);
     };
     module.prototype.belongsToPermanentPriceComponentGroup = function(priceComponent) {
         return priceComponent.labels.some(this.isPermanentPriceComponentGroupLabel, this);
     };
     module.prototype.isPermanentPriceComponentGroupLabel = function(label) {
-        return permanentPriceComponentGroupLabels.indexOf(label) > -1;
+        return _.keys(this.templatePriceComponentsByLabel).indexOf(label) > -1;
     };
     module.prototype.getPermanentPriceComponentGroupLabel = function(priceComponent) {
         for (var i = 0; i < priceComponent.labels.length; i++) {
@@ -44,22 +79,18 @@ define(["backbone", "app/utils"], function(Backbone, utils) {
             }
         }
     };
-    module.prototype.getPriceComponentGroupNames = function() {
-        
-    };
-    module.prototype.getTemplatePriceComponentNames = function(label) {
-        
-        return ["die", "plate"];
-    };
-    module.prototype.getTemplatePriceComponentByName = function(name) {
-        for (var i = 0; i < this.templatePriceComponents.length; i++) {
-            var c = this.templatePriceComponents[i];
-            if (name === c.name) {
-                return c;
-            }
-        }
-    };
     module.prototype.getTemplatePriceComponents = function(f) {
+        if (f.labels) {
+            if (f.labels.length < 2) {
+                if (this.templatePriceComponentsByLabel[f.labels[0]]) {
+                    this.trigger("templatePriceComponents:refreshed");
+                    return;
+                }
+            }
+        } else {
+            f.labels = [];
+        }
+        f.labels = ["template", "priceComponent"].concat(f.labels);
         Backbone.trigger("request:data", {responseChannel: "get:templatePriceComponents", path: "thing/json/get", data: {labels: f.labels, properties: f.properties, responseFormat: "resultWrapper"}});
         Backbone.once("get:templatePriceComponents", this.processTemplatePriceComponents, this);
     };
@@ -69,11 +100,15 @@ define(["backbone", "app/utils"], function(Backbone, utils) {
                 var component = this.priceComponentFromThing(thing);
                 this.templatePriceComponentsById[id] = component;
                 if (component.labels.length > 2) {
-                    for (var i = 0; i < component.labels; i++) {
-                        if (component.label === "template" || component.label === "priceComponent") {
+                    for (var i = 0; i < component.labels.length; i++) {
+                        var l = component.labels[i];
+                        if (l === "template" || l === "priceComponent") {
                             continue;
                         }
-                        this.templatePriceComponentsByLabel[componen.id] = component;
+                        if (!this.templatePriceComponentsByLabel[l]) {
+                            this.templatePriceComponentsByLabel[l] = {};
+                        }
+                        this.templatePriceComponentsByLabel[l][component.id] = component;
                     }
                 }
             }, this);
@@ -85,21 +120,13 @@ define(["backbone", "app/utils"], function(Backbone, utils) {
         _.extend(component, thing.properties);
         return component;
     };
-    module.prototype.getFoldingByName = function(name) {
-        for (var i = 0; i < this.foldings.length; i++) {
-            var f = this.foldings[i];
-            if (name === f.name) {
-                return f;
-            }
-        }
-    };
-    module.prototype.getFoldings = function() {
-        return this.foldings;
+    module.prototype.orderFromThing = function(thing) {
+        var order = {labels: thing.labels, relationsOutGoing: thing.relationsOutgoing};
+        _.extend(order, thing.properties);
+        return order;
     };
     _.extend(module.prototype, Backbone.Events);
     var m = new module();
-    m.templatePriceComponents = [{name: "die", id: "1", otherExpences: 2000, timePerOperation: 1, pricePerTime: 0.25},
-                                 {name: "plate", id: "2", amount: 4, pricePerOperation: 5000}];
     m.foldings = [{name: "verticalHalf", sizeDifference: 2, vertical: true}];
     return m;
 });
