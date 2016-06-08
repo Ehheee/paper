@@ -12,7 +12,7 @@ define(["backbone", "app/utils"], function(Backbone, utils) {
             Backbone.once("priceComponent:get", this.receivePriceComponent.bind(this, id));
         } else {
             var c = this.templatePriceComponentsById[id] || this.priceComponentsById[id];
-            this.trigger("component:"+component.id, component);
+            this.trigger("component:"+c.id, c);
         }
     };
     module.prototype.receivePriceComponent = function(id, data) {

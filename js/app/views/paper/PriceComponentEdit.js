@@ -21,7 +21,7 @@ define([
         },
         initialize: function(options) {
             this.priceComponent = {labels: ["template", "priceComponent"]};
-            this.fieldInputs = [];
+            this.fieldViews = {};
             _.extend(this, options);
             if (this.componentId) {
                 this.listenToOnce(paperModel, "component:"+this.componentId, this.setComponent);
@@ -71,17 +71,38 @@ define([
         renderField: function(key) {
             var fieldView = new PriceComponentFieldEdit({type: key, value: this.priceComponent[key], fields: fields});
             this.listenTo(fieldView, "field:changed", this.onFieldChange);
+            this.listenToOnce(fieldView, "remove", this.removeField);
             this.$(".js_fields").append(fieldView.render().$el);
+            this.fieldViews[key] = fieldView;
+            return fieldView;
         },
         addField: function() {
             var fieldView = new PriceComponentFieldEdit({fields: fields});
             this.listenTo(fieldView, "field:changed", this.onFieldChange);
+            this.listenToOnce(fieldView, "remove", this.removeField);
             this.$(".js_fields").append(fieldView.render().$el);
         },
+        removeField: function(key, view) {
+            delete this.fieldViews[key];
+            delete this.priceComponent[key];
+        },
         onLabelInput: function(key, value) {
+            if (value === "paper" && !this.fieldViews.height) {
+                this.renderField("width");
+                this.renderField("height");
+            }
+            if (value !== "paper" && this.fieldViews.height) {
+                this.fieldViews.width.remove();
+                this.fieldViews.height.remove();
+                delete this.fieldViews.width;
+                delete this.fieldViews.height;
+            }
             this.priceComponent.labels[key] = value;
         },
-        onFieldChange: function(key, value) {
+        onFieldChange: function(oldKey, key, value) {
+            this.fieldViews[key] = this.fieldViews[oldKey];
+            delete this.fieldViews[oldKey];
+            delete this.priceComponent[oldKey];
             this.priceComponent[key] = value;
         },
         save: function() {

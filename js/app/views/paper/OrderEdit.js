@@ -56,7 +56,6 @@ define([
             this.priceCalculator = new PriceCalculator();
             this.priceComponentViews = [];
             this.checkOrCreateOrder();
-            this.reCalculate();
         },
         render: function() {
             this.$el.html(this.template({}));
@@ -79,6 +78,9 @@ define([
             this.$(".userInputs").append(this.twoSidedInput.render().$el);
         },
         renderPriceComponents: function() {
+            if (!this.order.relationsOutGoing) {
+                return;
+            }
             for (var i = 0; i < this.order.relationsOutGoing.hasPriceComponent.length; i++) {
                 var component = this.order.relationsOutGoing.hasPriceComponent[i].to;
                 var priceComponentSelect;
@@ -107,9 +109,12 @@ define([
                 this.order.relationsOutGoing.hasPriceComponent.push({to: component});
                 selectView.key = this.order.relationsOutGoing.hasPriceComponent.length - 1;
             }
-            
+            this.reCalculate();
         },
         reCalculate: function() {
+            if (this.order.relationsOutGoing.hasPriceComponent.length < 1) {
+                return;
+            }
             if (!this.paperPlacementCalc) {
                 this.paperPlacementCalc = new PaperPlacementCalculator();
             }
@@ -151,14 +156,11 @@ define([
             this.order[key] = utils.stringToType(value);
             console.log(this.order);
             this.reCalculate();
-            
         },
         checkOrCreateOrder: function() {
             if (!this.order) {
-                this.order = defaultOrder;
+                this.order = {cuttingGap: 2, relationsOutGoing: {hasPriceComponent: []}, bleedTop: 3, bleedBottom: 3, bleedLeft: 3, bleedRight: 3};
             }
-            this.folding = this.getComponentByLabel("folding");
-            this.paper = this.getComponentByLabel("paper");
         },
         getComponentByLabel: function(label) {
             var results = [];

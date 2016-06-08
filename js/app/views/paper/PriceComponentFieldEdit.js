@@ -27,7 +27,7 @@ define(["backbone", "app/templateLoader", "app/views/common/Input"], function(Ba
         },
         onChange: function(key, value) {
             if (key === "fieldValue") {
-                if (value.indexOf("/") > -1){
+                if (value.indexOf && value.indexOf("/") > -1){
                     var s = value.indexOf("/");
                     var numerator = s === 0 ? 1 : value.slice(0, s);
                     var denominator = value.slice(s + 1);
@@ -35,9 +35,14 @@ define(["backbone", "app/templateLoader", "app/views/common/Input"], function(Ba
                 }
                 this.value = value;
             } else {
+                this.oldType = this.type;
                 this.type = value;
             }
-            this.trigger("field:changed", this.type, this.value);
+            this.trigger("field:changed", this.oldType, this.type, this.value);
+        },
+        remove: function() {
+            this.trigger("remove", this.type, this);
+            Backbone.View.prototype.remove.call(this);
         },
     });
     return module;

@@ -92,15 +92,20 @@ define(["backbone", "app/templateLoader", "app/utils"], function(Backbone, templ
         },
         afterInput : function() {
             console.log("!!!");
-            this.trigger("input:changed", this.key, this.getValue());
+            var value = this.getValue();
+            if (value === this.oldValue) {
+                return;
+            }
+            this.oldValue === value;
+            this.trigger("input:changed", this.key, value);
             if (this.callback) {
-                this.callback(this.key, this.getValue());
+                this.callback(this.key, value);
             }
             this.changed = true;
         },
         getValue : function() {
             if (this.$(":selected").length > 0) {
-                return this.$(":selected").val();
+                return utils.stringToType(this.$(":selected").val());
             } else if (this.$("[type=checkbox]").length > 0) {
                 return this.$(":checked").length > 0;
             } else {
@@ -108,7 +113,7 @@ define(["backbone", "app/templateLoader", "app/utils"], function(Backbone, templ
                     var v = this.$("input").val();
                     return this.suggestMap[v];
                 }
-                return this.$("input").val();
+                return utils.stringToType(this.$("input").val());
             }
         },
         createRange : function(field) {
