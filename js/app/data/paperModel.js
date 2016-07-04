@@ -55,12 +55,18 @@ define(["backbone", "app/utils"], function(Backbone, utils) {
             var o = this.orderFromThing(t);
             if (o.labels.indexOf("order") > -1) {
                 result.push(o);
+                this.processOrderComponents(o);
             }
         }, this);
         if (callback) {
             callback(result);
         }
         this.trigger("orders:get", result);
+    };
+    module.prototype.processOrderComponents = function(order) {
+        _.each(order.relationsOutGoing.hasPriceComponent, function(r, i) {
+            order.relationsOutGoing.hasPriceComponent[i].to = this.priceComponentFromThing(r.to);
+        }, this);
     };
     module.prototype.processSavedOrder = function(data) {
         console.log(data);

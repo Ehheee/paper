@@ -5,6 +5,7 @@
     <div class="js_priceComponents">
     </div>
     <div class="js_addComponent button">+</div>
+    <div class="totalContainer"><span>Total: </span><span class="js_grandTotal"></span></div>
     <div class="button js_saveOrder">
         save
     </div>
@@ -27,6 +28,7 @@
         <div class="inputContainer inline js_fieldValue"></div>
 </script>
 <script type="text/template" id="priceComponentSelectTemplate">
+    <div class="js_remove inline">x</div>
     <div class="js_componentSelect inline"></div>
-    <div class="js_componentTotal inline"><%=total%></div>
+    <div class="js_componentTotal inline thinBlackBorder"><%=total%></div>
 </script>

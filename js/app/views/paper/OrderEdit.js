@@ -92,6 +92,7 @@ define([
                     priceComponentSelect = new PriceComponentSelect({component: component, key: i, callback: this.onComponentSelected.bind(this)});
                     this.$priceComponents.append(priceComponentSelect.render().$el);
                 }
+                this.listenToOnce(priceComponentSelect, "component:remove", this.onComponentRemove);
                 this.priceComponentViews.push(priceComponentSelect);
             }
         },
@@ -99,15 +100,32 @@ define([
             this.$(".js_canvasContainer").append(this.paperCanvas.render().$el);
         },
         addPriceComponentSelect: function() {
-            var sel = new PriceComponentSelect({callback: this.onComponentSelected.bind(this)});
+            var sel = new PriceComponentSelect({callback: this.onComponentSelected.bind(this), key: this.priceComponentViews.length});
+            this.listenToOnce(sel, "component:remove", this.onComponentRemove);
             this.$priceComponents.append(sel.render().$el);
+            this.order.relationsOutGoing.hasPriceComponent.push({});
+            this.priceComponentViews.push(sel);
+        },
+        onComponentRemove: function(key) {
+            this.priceComponentViews.splice(key, 1);
+            this.order.relationsOutGoing.hasPriceComponent.splice(key, 1);
+            this.reCalculate();
         },
         onComponentSelected: function(key, component, selectView) {
+            console.log(component);
             if (typeof key !== "undefined") {
                 this.order.relationsOutGoing.hasPriceComponent[key].to = component;
             } else {
                 this.order.relationsOutGoing.hasPriceComponent.push({to: component});
                 selectView.key = this.order.relationsOutGoing.hasPriceComponent.length - 1;
+            }
+            var printer = this.getComponentByLabel("printer");
+            if (printer)  {
+                _.each(printer, function(value, key) {
+                    if (key.indexOf("greifer" > -1)) {
+                        this.order[key] = value;
+                    }
+                }, this);
             }
             this.reCalculate();
         },
@@ -145,6 +163,7 @@ define([
                 var c = this.order.relationsOutGoing.hasPriceComponent[i].to;
                 v.setTotal(c.total);
             }
+            this.$(".js_grandTotal").html(this.order.total);
         },
         addSave: function() {
             this.$(".js_saveOrder").show();

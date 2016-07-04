@@ -106,7 +106,11 @@ define([
             this.priceComponent[key] = value;
         },
         save: function() {
-            paperModel.savePriceComponent(this.priceComponent, this.saved.bind(this));
+            if (!this.isOrderComponent) {
+                paperModel.savePriceComponent(this.priceComponent, this.saved.bind(this));
+            } else {
+                this.trigger("priceComponent:save", this.priceComponent);
+            }
         },
         saved: function(data) {
             this.$(".js_id").html(data.thing.id);

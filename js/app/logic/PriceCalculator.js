@@ -23,6 +23,7 @@ define([], function() {
         return this;
     };
     module.prototype.calculatePrices = function(order) {
+        var grandTotal = 0;
         _.each(order.relationsOutGoing.hasPriceComponent, function(component, i) {
             component = component.to;
             var amount = component.amount ? component.amount : order.amount * component.amountPerProduct;
@@ -35,7 +36,9 @@ define([], function() {
                 componentTotal += component.pricePerOperation * amount;
             }
             component.total = componentTotal;
+            grandTotal += componentTotal;
         }, this);
+        order.total = grandTotal;
     };
     return module;
 });

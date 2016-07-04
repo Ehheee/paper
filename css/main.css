@@ -18,3 +18,10 @@
 .hidden {
     display: none;
 }
+.thinBlackBorder {
+    border-style: solid;
+    border-width: 1px;
+}
+.hoverContainer {
+    padding: 20px;
+}
