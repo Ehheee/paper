@@ -41,7 +41,7 @@ define([
         renderLabels: function() {
             var labelsDiv = this.$(".js_labels");
             if (this.priceComponent.labels.length < 3) {
-                var input = new Input({label: "group", key: this.priceComponent.labels.length, callback: this.onLabelInput.bind(this)});
+                var input = new Input({label: "group", key: this.priceComponent.labels.length, callback: this.onLabelInput.bind(this), suggests: ["paper", "printer", "printPlates"]});
                 labelsDiv.append(input.render().$el);
             }
             for (var i = 0; i < this.priceComponent.labels.length; i++) {
@@ -113,6 +113,8 @@ define([
             }
         },
         saved: function(data) {
+            Backbone.trigger("router:navigate", "/pc/edit/" + data.thing.id + "/");
+            this.priceComponent.id = data.thing.id;
             this.$(".js_id").html(data.thing.id);
         },
     });

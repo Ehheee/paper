@@ -88,9 +88,7 @@ define([], function() {
         return {rectangles: this.getRectangles(), printPlatesAmount: this.getPrintPlatesAmount(), paperAmount: this.getPaperAmount()};
     };
     module.prototype.getPagesPerPaper = function() {
-        var byHeight = Math.floor(this.realPaperSize.height / this.realProductSize.height);
-        var byWidth = Math.floor(this.realPaperSize.width / this.realProductSize.width);
-        return byHeight * byWidth * (this.folding ? this.folding.sizeDifference : 1);
+        return Math.floor(this.total / this.order.numPages)*this.order.numPages;
     };
     module.prototype.getPrintPlatesAmount = function() {
         var pagesPerPlate = this.getPagesPerPaper();

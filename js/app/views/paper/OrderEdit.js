@@ -138,16 +138,22 @@ define([
             }
             var paper = this.getComponentByLabel("paper");
             var printPlates = this.getComponentByLabel("printPlates");
-            this.paperPlacementCalc.setOptions(this.order, this.getComponentByLabel("folding"), {width: paper.width, height: paper.height});
-            var res = this.paperPlacementCalc.getResult();
-            paper.amount = res.paperAmount;
-            if (printPlates) {
-                printPlates.amount = res.printPlatesAmount;
+            var printer = this.getComponentByLabel("printer");
+            if (paper) {
+                this.paperPlacementCalc.setOptions(this.order, this.getComponentByLabel("folding"), {width: paper.width, height: paper.height});
+                var res = this.paperPlacementCalc.getResult();
+                paper.amount = res.paperAmount;
+                if (printPlates) {
+                    printPlates.amount = res.printPlatesAmount;
+                }
+                if (printer) {
+                    printer.amount = res.paperAmount;
+                }
+                this.paperCanvas.setSize(paper.width*2, paper.height*2);
+                this.paperCanvas.setRectangles(res.rectangles);
             }
             this.priceCalculator.calculatePrices(this.order);
             this.setTotals();
-            this.paperCanvas.setSize(paper.width*2, paper.height*2);
-            this.paperCanvas.setRectangles(res.rectangles);
             console.log(this.order);
             console.log(res);
             /*
