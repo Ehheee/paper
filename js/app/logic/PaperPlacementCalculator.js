@@ -7,7 +7,8 @@ define([], function() {
         this.realProductSize = {};
         this.realPaperSize = {};
     };
-    module.prototype.setOptions = function(order, folding, paperSize) {
+    module.prototype.setOptions = function(order, folding, paperSize, printPlates) {
+        this.printPlates = printPlates;
         this.order = order;
         this.productSize.height = order.productHeight;
         this.productSize.width = order.productWidth;
@@ -85,18 +86,29 @@ define([], function() {
     };
     module.prototype.getResult = function() {
         this.productPlacement();
-        return {rectangles: this.getRectangles(), printPlatesAmount: this.getPrintPlatesAmount(), paperAmount: this.getPaperAmount()};
+        return {rectangles: this.getRectangles(), paperAmount: this.getPaperAmount()};
     };
+    module.prototype.getPagesPerPaper = function() {
+        return (this.total * (this.folding && this.folding.separatePages ? folding.sizeDifference: 1)  * (this.order.twoSided ? 2: 1));
+    };
+    /*
     module.prototype.getPagesPerPaper = function() {
         return Math.floor(this.total / this.order.numPages)*this.order.numPages;
     };
-    module.prototype.getPrintPlatesAmount = function() {
+    */
+    module.prototype.setPrintPlatesAmount = function() {
         var pagesPerPlate = this.getPagesPerPaper();
-        return Math.ceil(this.order.numPages / pagesPerPlate)*this.order.numColors;
+        if (this.printPlates && !_.isArray(this.printPlates)) {
+            this.printPlates = [this.printPlates];
+        }
+        for (var i = 0; i < this.printPlates.length; i++) {
+            var plate = this.printPlates[i];
+            plate.amount = Math.ceil((plate.numPages ? plate.NumPages : this.order.numPages) / pagesPerPlate ) * (plate.numColors || 1);
+        }
     };
     module.prototype.getPaperAmount = function() {
         var pagesPerPaper = this.getPagesPerPaper();
-        return Math.ceil(this.order.amount * (this.order.numPages / pagesPerPaper) / (this.order.twoSided ? 2 : 1));
+        return Math.ceil(this.order.amount * (this.order.numPages / pagesPerPaper));
     };
     module.prototype.getRectangles = function(rectangles, byWidth, byHeight, startPosition) {
         var rectangles = rectangles || [];

@@ -122,7 +122,7 @@ define([
             var printer = this.getComponentByLabel("printer");
             if (printer)  {
                 _.each(printer, function(value, key) {
-                    if (key.indexOf("greifer" > -1)) {
+                    if (key.indexOf("greifer") > -1) {
                         this.order[key] = value;
                     }
                 }, this);
@@ -140,12 +140,10 @@ define([
             var printPlates = this.getComponentByLabel("printPlates");
             var printer = this.getComponentByLabel("printer");
             if (paper) {
-                this.paperPlacementCalc.setOptions(this.order, this.getComponentByLabel("folding"), {width: paper.width, height: paper.height});
+                this.paperPlacementCalc.setOptions(this.order, this.getComponentByLabel("folding"), {width: paper.width, height: paper.height}, printPlates || []);
                 var res = this.paperPlacementCalc.getResult();
+                this.paperPlacementCalc.setPrintPlatesAmount();
                 paper.amount = res.paperAmount;
-                if (printPlates) {
-                    printPlates.amount = res.printPlatesAmount;
-                }
                 if (printer) {
                     printer.amount = res.paperAmount;
                 }
