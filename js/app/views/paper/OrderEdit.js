@@ -145,7 +145,7 @@ define([
                 this.paperPlacementCalc.setPrintPlatesAmount();
                 paper.amount = res.paperAmount;
                 if (printer) {
-                    printer.amount = res.paperAmount;
+                    printer.amount = res.paperAmount * (this.order.twoSided ? 2 : 1);
                 }
                 this.paperCanvas.setSize(paper.width*2, paper.height*2);
                 this.paperCanvas.setRectangles(res.rectangles);

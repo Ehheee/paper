@@ -88,22 +88,22 @@ define([], function() {
         this.productPlacement();
         return {rectangles: this.getRectangles(), paperAmount: this.getPaperAmount()};
     };
+    /*
+     * Total is calculated for each piece of paper that is later cut. 
+     * Total does not reflect later folding so if each fold is a different page,
+     * then the number of pages is a higher multiplier of total.
+     */
     module.prototype.getPagesPerPaper = function() {
         return (this.total * (this.folding && this.folding.separatePages ? folding.sizeDifference: 1)  * (this.order.twoSided ? 2: 1));
     };
-    /*
-    module.prototype.getPagesPerPaper = function() {
-        return Math.floor(this.total / this.order.numPages)*this.order.numPages;
-    };
-    */
     module.prototype.setPrintPlatesAmount = function() {
-        var pagesPerPlate = this.getPagesPerPaper();
+        var pagesPerPlate = this.getPagesPerPaper() / (this.order.twoSided ? 2 : 1);
         if (this.printPlates && !_.isArray(this.printPlates)) {
             this.printPlates = [this.printPlates];
         }
         for (var i = 0; i < this.printPlates.length; i++) {
             var plate = this.printPlates[i];
-            plate.amount = Math.ceil((plate.numPages ? plate.NumPages : this.order.numPages) / pagesPerPlate ) * (plate.numColors || 1);
+            plate.amount = Math.ceil((plate.numPages ? plate.NumPages : this.order.numPages) / (pagesPerPlate) ) * (plate.numColors || 1);
         }
     };
     module.prototype.getPaperAmount = function() {
