@@ -41,7 +41,7 @@ define([
         renderLabels: function() {
             var labelsDiv = this.$(".js_labels");
             if (this.priceComponent.labels.length < 3) {
-                var input = new Input({label: "group", key: this.priceComponent.labels.length, callback: this.onLabelInput.bind(this), suggests: ["paper", "printer", "printPlates"]});
+                var input = new Input({label: "group", key: this.priceComponent.labels.length, callback: this.onLabelInput.bind(this), suggests: ["paper", "printer", "printPlates", "folding"]});
                 labelsDiv.append(input.render().$el);
             }
             for (var i = 0; i < this.priceComponent.labels.length; i++) {
@@ -87,6 +87,10 @@ define([
             delete this.priceComponent[key];
         },
         onLabelInput: function(key, value) {
+            this.checkPaperLabel(value);
+            this.priceComponent.labels[key] = value;
+        },
+        checkPaperLabel: function(value) {
             if (value === "paper" && !this.fieldViews.height) {
                 this.renderField("width");
                 this.renderField("height");
@@ -97,7 +101,14 @@ define([
                 delete this.fieldViews.width;
                 delete this.fieldViews.height;
             }
-            this.priceComponent.labels[key] = value;
+        },
+        checkFoldingLabel: function(value) {
+            if (value === "folding" && !this.fieldViews.sizeDifference) {
+                
+            }
+            if (value !== "folding" && this.fieldViews.sizeDifference) {
+                
+            }
         },
         onFieldChange: function(oldKey, key, value) {
             this.fieldViews[key] = this.fieldViews[oldKey];

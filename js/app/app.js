@@ -5,19 +5,22 @@ define([
     "app/views/common/LoginView",
     "app/Router",
     "app/data/thingServer",
-    "app/data/paperModel"
+    "app/data/paperModel",
+    "app/translator"
     ], function(
         Backbone,
         $, config,
         LoginView,
         Router,
         thingServer,
-        paperModel
+        paperModel,
+        translator
     ) {
     var module = function() {
     };
     module.prototype.run = function() {
         appRootUrl = config["appRootUrl"];
+        translator.setLanguage(config["defaultLanguage"]);
         this.router = new Router();
         this.listenTo(this.router, "route:logout", this.onLogOut);
         this.listenToOnce(paperModel, "templatePriceComponents:refreshed", this.startHistory);

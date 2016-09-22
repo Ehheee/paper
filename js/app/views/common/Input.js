@@ -1,4 +1,4 @@
-define(["backbone", "app/templateLoader", "app/utils"], function(Backbone, templateLoader, utils) {
+define(["backbone", "app/templateLoader", "app/utils", "app/translator"], function(Backbone, templateLoader, utils, translator) {
     /*
      * Possible options:
      * key - used as label and added in change trigger for recognizing input
@@ -32,13 +32,15 @@ define(["backbone", "app/templateLoader", "app/utils"], function(Backbone, templ
                 this.$el.html($(this.template({
                     label : this.label ? this.label : this.key,
                     key : this.key,
-                    value : this.value
+                    value : this.value,
+                    translate : translator.translate
                 })).html());
             } else {
                 this.setElement(this.template({
                     label : this.label ? this.label : this.key,
                     key : this.key,
-                    value : this.value
+                    value : this.value,
+                    translate: translator.translate
                 }));
             }
             if (this.suggests) {
@@ -74,7 +76,7 @@ define(["backbone", "app/templateLoader", "app/utils"], function(Backbone, templ
                 if (_.isObject(s)) {
                     this.suggestMap[s[this.showKey]] = s;
                 }
-                dataList.append($(document.createElement("option")).attr("value", _.isObject(s) ? s[this.showKey] : s));
+                dataList.append($(document.createElement("option")).attr("value", _.isObject(s) ? translator.translate(s[this.showKey]) : translator.translate(s)));
             }
         },
         renderSelect : function() {
@@ -104,16 +106,19 @@ define(["backbone", "app/templateLoader", "app/utils"], function(Backbone, templ
             this.changed = true;
         },
         getValue : function() {
+            var r;
             if (this.$(":selected").length > 0) {
-                return utils.stringToType(this.$(":selected").val());
+                r = utils.stringToType(this.$(":selected").val());
             } else if (this.$("[type=checkbox]").length > 0) {
-                return this.$(":checked").length > 0;
+                r = this.$(":checked").length > 0;
             } else {
                 if (this.suggests && _.isObject(this.suggests[0])) {
                     var v = this.$("input").val();
-                    return this.suggestMap[v];
+                    r =  this.suggestMap[v];
+                } else {
+                    r = utils.stringToType(this.$("input").val());
                 }
-                return utils.stringToType(this.$("input").val());
+                return translator.reverse(r);
             }
         },
         createRange : function(field) {

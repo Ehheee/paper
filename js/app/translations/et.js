@@ -1,0 +1,22 @@
+define({
+    "amount": "kogus",
+    "productHeight": "toote kõrgus",
+    "productWidth" : "toote laius",
+    "numPages" : "lehekülgede arv",
+    "cuttingGap" : "lõikevahe",
+    "twoSided" : "kahepoolne",
+    "fieldType" : " ",
+    "fieldValue" : " : ",
+    "paper" : "paber",
+    "printPlates" : "trükiplaadid",
+    "printer" : "printer",
+    "folding" : "voltimine",
+    "name" : "nimi",
+    "amountPerProduct" : "Kogus toote kohta",
+    "pricePerOperation" : "Ühiku hind",
+    "timePerOperation" : "Ühiku ajakulu",
+    "pricePerTime" : "Aja hind",
+    "otherExpences" : "Muud kulud",
+    "group" : "grupp",
+    "componentType" : "komponent"
+});

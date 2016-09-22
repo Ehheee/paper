@@ -1,7 +1,7 @@
 <script type="text/template" id="genericInputTemplate">
     <div class="inputContainer pad-3">
-        <label><%=label%></label>
-        <input name="<%=key%>" value="<%=value%>"></input>
+        <label><%=translate(label)%></label>
+        <input name="<%=key%>" value="<%=translate(value)%>"></input>
     </div>
 </script>
 <script type="text/template" id="mainViewTemplate">
@@ -21,7 +21,7 @@
     <span>Login:</span>
     <input placeholder="username" class="username" type="text"></input>
     <input placeholder="password" class="password" type="password"></input>
-    <button class="js_submit" type="button">Submit</button>
+    <button class="js_submit" type="button"><%= translate("Submit")</button>
     <span class="error block"></span>
 </script>
 <script type="text/template" id="baseTableTemplate">
