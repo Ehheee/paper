@@ -38,7 +38,7 @@ define(["backbone", "app/templateLoader", "app/views/common/Input"], function(Ba
                 this.oldType = this.type;
                 this.type = value;
             }
-            this.trigger("field:changed", this.oldType, this.type, this.value);
+            this.trigger("field:changed", this.oldType, this.type, this.value, this);
         },
         remove: function() {
             this.trigger("remove", this.type, this);

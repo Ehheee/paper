@@ -68,12 +68,24 @@ define([
                 }
             }
         },
-        renderField: function(key) {
-            var fieldView = new PriceComponentFieldEdit({type: key, value: this.priceComponent[key], fields: fields});
+        renderField: function(key, keyIndex) {
+            var v;
+            if (_.isArray(this.priceComponent[key])) {
+                var arr = this.priceComponent[key];
+                for (var i = 0; i < this.arr.length; i++) {
+                    this.renderField(key, i);
+                }
+                return;
+            }
+            var fieldView = new PriceComponentFieldEdit({type: key, value: this.priceComponent[key], keyIndex: keyIndex, fields: fields});
             this.listenTo(fieldView, "field:changed", this.onFieldChange);
             this.listenToOnce(fieldView, "remove", this.removeField);
             this.$(".js_fields").append(fieldView.render().$el);
-            this.fieldViews[key] = fieldView;
+            if (keyIndex) {
+                this.fieldViews[key][keyIndex] = fieldView;
+            } else {
+                this.fieldViews[key] = fieldView;
+            }
             return fieldView;
         },
         addField: function() {
@@ -88,6 +100,7 @@ define([
         },
         onLabelInput: function(key, value) {
             this.checkPaperLabel(value);
+            this.checkFoldingLabel(value);
             this.priceComponent.labels[key] = value;
         },
         checkPaperLabel: function(value) {
@@ -104,24 +117,62 @@ define([
         },
         checkFoldingLabel: function(value) {
             if (value === "folding" && !this.fieldViews.sizeDifference) {
-                
+                this.renderField("sizeDifference");
             }
             if (value !== "folding" && this.fieldViews.sizeDifference) {
-                
+                this.fieldViews.sizeDifference.remove();
+                delete this.fieldViews.sizeDifference;
             }
         },
-        onFieldChange: function(oldKey, key, value) {
-            this.fieldViews[key] = this.fieldViews[oldKey];
-            delete this.fieldViews[oldKey];
-            delete this.priceComponent[oldKey];
-            this.priceComponent[key] = value;
+        onFieldChange: function(oldKey, key, value, view) {
+            if (value) {
+                if (!this.priceComponent[key] || !_.isArray(this.fieldViews[key])) {
+                    this.priceComponent[key] = value;
+                    return;
+                }
+                if (_.isArray(this.fieldViews[key])) {
+                    if (!_.isArray(this.priceComponent[key])) {
+                        this.priceComponent[key] = [];
+                        for (var i = 0; i < this.fieldViews[key].length; i++) {
+                            var v = this.fieldViews[key][i];
+                            this.priceComponent[key][v.keyIndex] = v.value;
+                        }
+                    }
+                    this.priceComponent[key][view.keyIndex] = value;
+                }
+            }
+            if (oldKey) {
+                if (oldKey !== key) {
+                    if (_.isArray(this.priceComponent[oldKey])) {
+                        this.priceComponent[oldKey].splice(view.keyIndex, 1);
+                        this.fieldViews[oldKey].splice(view.keyIndex, 1);
+                    } else {
+                        delete this.priceComponent[oldKey];
+                        delete this.fieldViews[oldKey];
+                    }
+                    if (this.fieldViews[key] && !_.isArray(this.fieldViews[key])) {
+                        this.fieldViews[key] = [this.fieldViews[key]];
+                        this.fieldViews[key].push(view);
+                    } else if (!this.fieldViews[key]) {
+                        this.fieldViews[key] = view;
+                    }
+                    for (var i = 0; i < this.fieldViews[key].length; i ++) {
+                        this.fieldViews[key][i].keyIndex = i;
+                    }
+                    this.onFieldChange(undefined, key, value, view);
+                }
+            }
         },
         save: function() {
+            console.log(this.priceComponent);
+            console.log(this.fieldViews);
+            /*
             if (!this.isOrderComponent) {
                 paperModel.savePriceComponent(this.priceComponent, this.saved.bind(this));
             } else {
                 this.trigger("priceComponent:save", this.priceComponent);
             }
+            */
         },
         saved: function(data) {
             Backbone.trigger("router:navigate", "/pc/edit/" + data.thing.id + "/");
