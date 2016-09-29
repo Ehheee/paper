@@ -18,5 +18,6 @@ define({
     "pricePerTime" : "Aja hind",
     "otherExpences" : "Muud kulud",
     "group" : "grupp",
-    "componentType" : "komponent"
+    "componentType" : "komponent",
+    "cutPoint" : "lõikepunkt"
 });

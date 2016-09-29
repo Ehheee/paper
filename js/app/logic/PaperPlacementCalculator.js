@@ -199,12 +199,12 @@ define([], function() {
                 if (this.folding) {
                     for (var i = 0; i < this.folding.cutPoints; i++) {
                         var c = this.folding.cutPoints[i];
-                        var r = {type: "fold", start: {}, end: {}};
-                        r.start.x = x*this.realProductSize.width + this.order.bleedLeft + (this.folding.vertical ? c * this.productSize.width : 0);
-                        r.start.y = y*this.realProductSize.height + this.order.bleedTop + (this.folding.horizontal ? c * this.productSize.height : 0);
-                        r.end.x = r.start.x + (this.folding.horizontal ? this.productSize.width : 0);
-                        r.end.y = r.start.y + (this.folding.vertical ? this.productSize.height : 0);
-                        rectangles.push(r);
+                        var f = {type: "fold", start: {}, end: {}};
+                        f.start.x = x*this.realProductSize.width + this.order.bleedLeft + (this.folding.vertical ? c * this.productSize.width : 0);
+                        f.start.y = y*this.realProductSize.height + this.order.bleedTop + (this.folding.horizontal ? c * this.productSize.height : 0);
+                        f.end.x = r.start.x + (this.folding.horizontal ? this.productSize.width : 0);
+                        f.end.y = r.start.y + (this.folding.vertical ? this.productSize.height : 0);
+                        rectangles.push(f);
                     }
                     
                 }
@@ -212,6 +212,14 @@ define([], function() {
         }
         rectangles.push(this.getGreiferLine());
         return rectangles;
+    };
+    module.prototype.createFoldingLine = function(r, c) {
+        var f = {type: "fold", start: {}, end: {}};
+        f.start.x = r.x + (this.folding.vertical ? c * this.r.width : 0);
+        f.start.y = r.y + (this.folding.horizontal ? c * this.r.height : 0);
+        f.end.x = f.start.x + (this.folding.horizontal ? r.width : 0);
+        f.end.y = f.start.y + (this.folding.vertical ? r.height : 0);
+        return f;
     };
     module.prototype.getGreiferLine = function() {
         var r = {type: "greifer", start: {}, end: {}};

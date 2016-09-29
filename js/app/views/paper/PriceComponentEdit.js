@@ -95,8 +95,7 @@ define([
             this.$(".js_fields").append(fieldView.render().$el);
         },
         removeField: function(key, view) {
-            delete this.fieldViews[key];
-            delete this.priceComponent[key];
+            this.removeKey(key, view);
         },
         onLabelInput: function(key, value) {
             this.checkPaperLabel(value);
@@ -128,7 +127,6 @@ define([
             if (value) {
                 if (!this.priceComponent[key] || !_.isArray(this.fieldViews[key])) {
                     this.priceComponent[key] = value;
-                    return;
                 }
                 if (_.isArray(this.fieldViews[key])) {
                     if (!_.isArray(this.priceComponent[key])) {
@@ -143,15 +141,11 @@ define([
             }
             if (oldKey) {
                 if (oldKey !== key) {
-                    if (_.isArray(this.priceComponent[oldKey])) {
-                        this.priceComponent[oldKey].splice(view.keyIndex, 1);
-                        this.fieldViews[oldKey].splice(view.keyIndex, 1);
-                    } else {
-                        delete this.priceComponent[oldKey];
-                        delete this.fieldViews[oldKey];
-                    }
+                    this.removeKey(oldKey, view);
                     if (this.fieldViews[key] && !_.isArray(this.fieldViews[key])) {
                         this.fieldViews[key] = [this.fieldViews[key]];
+                        this.fieldViews[key].push(view);
+                    } else if (this.fieldViews[key] && _.isArray(this.fieldViews[key])) {
                         this.fieldViews[key].push(view);
                     } else if (!this.fieldViews[key]) {
                         this.fieldViews[key] = view;
@@ -161,6 +155,24 @@ define([
                     }
                     this.onFieldChange(undefined, key, value, view);
                 }
+            }
+        },
+        removeKey: function(oldKey, view) {
+            if (_.isArray(this.priceComponent[oldKey])) {
+                this.priceComponent[oldKey].splice(view.keyIndex, 1);
+                this.fieldViews[oldKey].splice(view.keyIndex, 1);
+                if (this.fieldViews[oldKey].length < 2) {
+                    if (this.fieldViews[oldKey].length === 0) {
+                        delete this.fieldViews[oldKey];
+                        delete this.priceComponent[oldKey];
+                    } else {
+                        this.fieldViews[oldKey] = this.fieldViews[oldKey][0];
+                        this.priceComponent[oldKey] = this.priceComponent[oldKey][0];
+                    }
+                }
+            } else {
+                delete this.priceComponent[oldKey];
+                delete this.fieldViews[oldKey];
             }
         },
         save: function() {
