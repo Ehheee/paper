@@ -6,7 +6,11 @@ define([], function() {
             value = value.toLowerCase();
             result = value === 'true' || (value === 'false' ? false : result);
             if ($.isNumeric(value)) {
-                result = parseInt(value);
+                if (value.indexOf(".") > -1) {
+                    result = parseFloat(value);
+                } else {
+                    result = parseInt(value);
+                }
             }
         }
         return result;
@@ -39,6 +43,13 @@ define([], function() {
             return this.getFromJson(tree[keyList.shift()], keyList);
         } else if (keyList.length < 2 && tree) {
             return tree[keyList[0]];
+        }
+    };
+    module.prototype.objectToArray = function(o) {
+        if ((typeof o !== "undefined") && !_.isArray(o)) {
+            return [o];
+        } else {
+            return o;
         }
     };
     return new module();

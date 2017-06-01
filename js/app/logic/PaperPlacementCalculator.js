@@ -1,7 +1,7 @@
 /*
  * All measures are in millimeters(mm);
  */
-define([], function() {
+define(["app/utils"], function(utils) {
     var module = function(options) {
         this.productSize = {};
         this.realProductSize = {};
@@ -197,28 +197,35 @@ define([], function() {
                     rectangles.push(c);
                 }
                 if (this.folding) {
-                    for (var i = 0; i < this.folding.cutPoints; i++) {
-                        var c = this.folding.cutPoints[i];
-                        var f = {type: "fold", start: {}, end: {}};
-                        f.start.x = x*this.realProductSize.width + this.order.bleedLeft + (this.folding.vertical ? c * this.productSize.width : 0);
-                        f.start.y = y*this.realProductSize.height + this.order.bleedTop + (this.folding.horizontal ? c * this.productSize.height : 0);
-                        f.end.x = r.start.x + (this.folding.horizontal ? this.productSize.width : 0);
-                        f.end.y = r.start.y + (this.folding.vertical ? this.productSize.height : 0);
-                        rectangles.push(f);
+                    if (!_.isArray(this.folding)) {
+                        this.folding = [this.folding];
                     }
-                    
+                    for (var i = 0; i < this.folding.length; i++) {
+                        rectangles = rectangles.concat(this.createFoldingLines(r, this.folding[i]));
+                    }
                 }
             }
         }
         rectangles.push(this.getGreiferLine());
         return rectangles;
     };
-    module.prototype.createFoldingLine = function(r, c) {
+    module.prototype.createFoldingLines = function(r, fold) {
+        var res = [];
+        var cutPoints = utils.objectToArray(fold.cutPoint);
+        for (var i = 0; i < cutPoints.length; i++) {
+            var c = cutPoints[i];
+            res.push(this.createFoldingLine(r, fold, c));
+        }
+        return res;
+    };
+    module.prototype.createFoldingLine = function(r, fold, c) {
         var f = {type: "fold", start: {}, end: {}};
-        f.start.x = r.x + (this.folding.vertical ? c * this.r.width : 0);
-        f.start.y = r.y + (this.folding.horizontal ? c * this.r.height : 0);
-        f.end.x = f.start.x + (this.folding.horizontal ? r.width : 0);
-        f.end.y = f.start.y + (this.folding.vertical ? r.height : 0);
+        var horizontal = (fold.orientation === "horizontal");
+        var vertical = (fold.orientation === "vertical");
+        f.start.x = r.x + (vertical ? c * r.width : 0);
+        f.start.y = r.y + (horizontal ? c * r.height : 0);
+        f.end.x = f.start.x + (horizontal ? r.width : 0);
+        f.end.y = f.start.y + (vertical ? r.height : 0);
         return f;
     };
     module.prototype.getGreiferLine = function() {

@@ -21,6 +21,7 @@ define(["backbone", "jquery", "app/config"], function(Backbone, $, config) {
             Backbone.trigger(options.responseChannel, data);
         }).always(function(data, textStatus) {
             console.log(textStatus);
+            context.reduceRequestCount();
         });
     };
     module.prototype.reduceRequestCount = function() {

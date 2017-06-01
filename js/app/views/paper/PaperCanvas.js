@@ -26,6 +26,8 @@ define(["app/views/common/Canvas"], function(Canvas) {
                     this.ctx.strokeRect(r.x*this.zoom, r.y*this.zoom, r.width*this.zoom, r.height*this.zoom);
                 } else if (r.type === "fold") {
                     this.ctx.setLineDash([2, 2]);
+                    this.ctx.strokeStyle = "#0000FF";
+                    this.ctx.beginPath();
                     this.ctx.moveTo(r.start.x*this.zoom, r.start.y*this.zoom);
                     this.ctx.lineTo(r.end.x*this.zoom, r.end.y*this.zoom);
                     this.ctx.stroke();

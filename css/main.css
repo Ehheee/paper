@@ -25,3 +25,23 @@
 .hoverContainer {
     padding: 20px;
 }
+.spinner {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    text-align: center;
+    font-size: 2em;
+    color: #333;
+}
+.mainMenuItem {
+    font-size: 1.3em;
+    padding-right: 14px;
+    border-style: solid;
+    border-width: 1px;
+}
+.mainMenu {
+}
+.subMenu {
+    padding-top: 10px;
+}

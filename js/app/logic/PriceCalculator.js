@@ -26,6 +26,7 @@ define([], function() {
         var grandTotal = 0;
         _.each(order.relationsOutGoing.hasPriceComponent, function(component, i) {
             component = component.to;
+            if (!component) return;
             var amount = component.amount ? component.amount : order.amount * component.amountPerProduct;
             var componentTotal = 0;
             componentTotal += component.otherExpences ? component.otherExpences : 0;

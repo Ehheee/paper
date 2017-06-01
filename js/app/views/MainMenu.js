@@ -26,6 +26,7 @@ define(["backbone", "app/templateLoader"], function(Backbone, templateLoader) {
             if (options && options.routes) {
                 this.routes = options.routes;
             }
+            console.log(this.routes);
         },
         linkClick: function(evt) {
             evt.preventDefault();
@@ -38,7 +39,12 @@ define(["backbone", "app/templateLoader"], function(Backbone, templateLoader) {
                 } else if (_.isObject(action)) {
                     var constructor = this.constructor;
                     var child = new constructor({routes: action});
-                    this.$(".js_subMenu").html(child.render().$el);
+                    var sub = this.$(".js_subMenu");
+                    if (sub.children().length > 0) {
+                        sub.fadeOut(20);
+                    }
+                    sub.html(child.render().$el);
+                    sub.fadeIn();
                 }
             }
         },

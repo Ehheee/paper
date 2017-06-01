@@ -10,6 +10,7 @@ define({
     "paper" : "paber",
     "printPlates" : "trükiplaadid",
     "printer" : "printer",
+    "sizeDifference": "suuruste erinevus",
     "folding" : "voltimine",
     "name" : "nimi",
     "amountPerProduct" : "Kogus toote kohta",

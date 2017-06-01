@@ -70,9 +70,9 @@ define([
         },
         renderField: function(key, keyIndex) {
             var v;
-            if (_.isArray(this.priceComponent[key])) {
+            if (_.isArray(this.priceComponent[key]) && (typeof keyIndex === "undefined")) {
                 var arr = this.priceComponent[key];
-                for (var i = 0; i < this.arr.length; i++) {
+                for (var i = 0; i < arr.length; i++) {
                     this.renderField(key, i);
                 }
                 return;
@@ -81,7 +81,10 @@ define([
             this.listenTo(fieldView, "field:changed", this.onFieldChange);
             this.listenToOnce(fieldView, "remove", this.removeField);
             this.$(".js_fields").append(fieldView.render().$el);
-            if (keyIndex) {
+            if (typeof keyIndex !== "undefined") {
+                if (!this.fieldViews[key]) {
+                    this.fieldViews[key] = [];
+                }
                 this.fieldViews[key][keyIndex] = fieldView;
             } else {
                 this.fieldViews[key] = fieldView;
@@ -117,10 +120,13 @@ define([
         checkFoldingLabel: function(value) {
             if (value === "folding" && !this.fieldViews.sizeDifference) {
                 this.renderField("sizeDifference");
+                this.renderField("orientation");
             }
             if (value !== "folding" && this.fieldViews.sizeDifference) {
-                this.fieldViews.sizeDifference.remove();
-                delete this.fieldViews.sizeDifference;
+                this.removeKey("sizeDifference");
+                this.removeKey("orientation");
+                //this.fieldViews.sizeDifference.remove();
+                //delete this.fieldViews.sizeDifference;
             }
         },
         onFieldChange: function(oldKey, key, value, view) {
@@ -178,13 +184,13 @@ define([
         save: function() {
             console.log(this.priceComponent);
             console.log(this.fieldViews);
-            /*
+            
             if (!this.isOrderComponent) {
                 paperModel.savePriceComponent(this.priceComponent, this.saved.bind(this));
             } else {
                 this.trigger("priceComponent:save", this.priceComponent);
             }
-            */
+            
         },
         saved: function(data) {
             Backbone.trigger("router:navigate", "/pc/edit/" + data.thing.id + "/");

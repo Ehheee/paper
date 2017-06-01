@@ -4,10 +4,13 @@
     </div>
     <div class="js_priceComponents">
     </div>
-    <div class="js_addComponent button">+</div>
+    <div class="js_addComponent fa fa-plus button"></div>
     <div class="totalContainer"><span>Total: </span><span class="js_grandTotal"></span></div>
     <div class="button js_saveOrder">
         save
+    </div>
+    <div class="button js_saveTemplate">
+        Save Template
     </div>
     <div class="js_canvasContainer">
     </div>
@@ -20,16 +23,16 @@
     <div class="js_labels"></div>
     <div class="js_id"><%=id%></div>
     <div class="js_fields"></div>
-    <div class="js_addField button">+</div>
+    <div class="js_addField fa fa-plus button"></div>
     <div class="js_save button">save</div>
 </script>
 <script type="text/template" id="priceComponentFieldEditTemplate">
         <div class="inputContainer inline js_fieldType"></div>
         <div class="inputContainer inline js_fieldValue"></div>
-        <div class="inline js_remove button">x</div>
+        <div class="js_remove button fa fa-remove inline"></div>
 </script>
 <script type="text/template" id="priceComponentSelectTemplate">
-    <div class="js_remove inline">x</div>
+    <div class="js_remove button fa fa-remove inline"></div>
     <div class="js_componentSelect inline"></div>
     <div class="js_componentTotal inline thinBlackBorder"><%=total%></div>
 </script>

@@ -48,7 +48,8 @@ define([
         template: templateLoader.get("orderEditTemplate"),
         events: {
             "click .js_addComponent": "addPriceComponentSelect",
-            "click .js_saveOrder": "saveOrder"
+            "click .js_saveOrder": "saveOrder",
+            "click .js_saveTemplate": "saveAsTemplate"
         },
         initialize: function(options) {
             _.extend(this, options);
@@ -66,6 +67,8 @@ define([
             this.renderPaperCanvas();
         },
         renderUserInputs: function() {
+            this.nameInput = new Input({key: "name", value: this.order.name, callback: this.onUserInputChange.bind(this)});
+            this.$(".userInputs").append(this.nameInput.render().$el);
             this.amountInput = new Input({key: "amount", value: this.order.amount, callback: this.onUserInputChange.bind(this)});
             this.numPagesInput = new Input({key: "numPages", value: this.order.numPages, callback: this.onUserInputChange.bind(this)});
             this.productHeightInput = new Input({key: "productHeight", value: this.order.productHeight,  callback: this.onUserInputChange.bind(this)});
@@ -165,6 +168,7 @@ define([
             for (var i = 0; i < this.priceComponentViews.length; i++) {
                 var v = this.priceComponentViews[i];
                 var c = this.order.relationsOutGoing.hasPriceComponent[i].to;
+                if (!c) continue;
                 v.setTotal(c.total);
             }
             this.$(".js_grandTotal").html(this.order.total);
@@ -174,6 +178,12 @@ define([
         },
         saveOrder: function() {
             model.saveOrder(this.order);
+        },
+        saveAsTemplate: function() {
+            if (this.order.labels.indexOf("template") > -1) {
+                this.order.labels.push("template");
+            }
+            this.saveOrder();
         },
         onUserInputChange: function(key, value) {
             this.order[key] = utils.stringToType(value);
@@ -189,6 +199,7 @@ define([
             var results = [];
             for (var i = 0; i < this.order.relationsOutGoing.hasPriceComponent.length; i++) {
                 var c = this.order.relationsOutGoing.hasPriceComponent[i].to;
+                if (!c || !c.labels) continue;
                 var k = c.labels.indexOf(label);
                 if (k > -1) {
                     results.push(c);
